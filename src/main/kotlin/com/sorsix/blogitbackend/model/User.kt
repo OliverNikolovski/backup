@@ -18,22 +18,22 @@ data class User(
     @Column
     val email: String,
 
-    @Column(name = "shortbio")
+    @Column(name = "short_bio")
     val shortBio: String,
 
-    @Column(name = "profilepicture")
+    @Column(name = "profile_picture")
     val profilePicture: ByteArray,
 
-    @Column(name = "isaccountnonexpired")
+    @Column(name = "is_account_non_expired")
     val isAccountNonExpired: Boolean,
 
-    @Column(name = "isaccountnonlocked")
+    @Column(name = "is_account_non_locked")
     val isAcccountNonLocked: Boolean,
 
-    @Column(name = "iscredentialsnonexpired")
+    @Column(name = "is_credentials_non_expired")
     val isCredentialsNonExpired: Boolean,
 
-    @Column(name = "isenabled")
+    @Column(name = "is_enabled")
     val isEnabled: Boolean
 ) {
     override fun equals(other: Any?): Boolean {

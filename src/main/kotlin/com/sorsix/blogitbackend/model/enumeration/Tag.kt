@@ -1,4 +1,4 @@
-package com.sorsix.blogitbackend.model.enum
+package com.sorsix.blogitbackend.model.enumeration
 
 enum class Tag {
     SPORT,

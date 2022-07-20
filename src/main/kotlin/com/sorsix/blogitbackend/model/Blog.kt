@@ -14,13 +14,13 @@ data class Blog(
 
     val content: String,
 
-    @Column(name = "datecreated")
+    @Column(name = "date_created")
     val dateCreated: ZonedDateTime,
 
-    @Column(name = "numberoflikes")
+    @Column(name = "number_of_likes")
     val numberOfLikes: Int,
 
-    @Column(name = "estimatedreadtime")
+    @Column(name = "estimated_read_time")
     val estimatedReadTime: Int,
 
     val user_id: Long

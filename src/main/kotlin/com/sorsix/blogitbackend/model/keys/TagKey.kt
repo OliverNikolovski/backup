@@ -1,6 +1,6 @@
 package com.sorsix.blogitbackend.model.keys
 
-import com.sorsix.blogitbackend.model.enum.Tag
+import com.sorsix.blogitbackend.model.enumeration.Tag
 
 import java.io.Serializable
 import javax.persistence.Column

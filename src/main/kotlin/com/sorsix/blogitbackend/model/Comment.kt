@@ -12,10 +12,10 @@ data class Comment(
 
     val content: String,
 
-    @Column(name = "datecreated")
+    @Column(name = "date_created")
     val dateCreated: ZonedDateTime,
 
-    @Column(name = "numberoflikes")
+    @Column(name = "number_of_likes")
     val numberOfLikes: Int,
 
     val user_id: Long,
