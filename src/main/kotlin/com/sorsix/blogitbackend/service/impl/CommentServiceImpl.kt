@@ -1,7 +1,7 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Comment
-import com.sorsix.blogitbackend.model.results.*
+import com.sorsix.blogitbackend.model.results.comment.*
 import com.sorsix.blogitbackend.repository.BlogRepository
 import com.sorsix.blogitbackend.repository.CommentRepository
 import com.sorsix.blogitbackend.repository.UserRepository
@@ -20,7 +20,7 @@ class CommentServiceImpl(
 
     override fun findAll(): List<Comment> = commentRepository.findAll()
 
-    override fun like(comment_id: Long): CommentResult {
+    override fun like(comment_id: Long): CommentLikedResult {
 
         val comment = commentRepository.findByIdOrNull(comment_id)
 
@@ -46,7 +46,7 @@ class CommentServiceImpl(
         } ?: CommentNotExisting("Comment with id $comment_id does not exist")
     }
 
-    override fun save(content: String, user_id: Long, blog_id: Long): CommentResult {
+    override fun save(content: String, user_id: Long, blog_id: Long): CommentSaveResult {
 
         if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
 
@@ -67,7 +67,7 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun update(user_id: Long, comment_id: Long, content: String): CommentResult {
+    override fun update(user_id: Long, comment_id: Long, content: String): CommentUpdateResult {
 
         val comment = commentRepository.findByIdOrNull(comment_id)
             ?: return CommentNotExisting("Comment with id $comment_id does not exist")
