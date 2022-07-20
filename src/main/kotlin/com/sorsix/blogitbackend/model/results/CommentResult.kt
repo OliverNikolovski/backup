@@ -14,6 +14,10 @@ data class CommentLiked(val comment: Comment) : CommentResult {
     override fun success() = true
 }
 
+data class CommentNotLiked(val message: String) : CommentResult {
+    override fun success() = false
+}
+
 data class CommentNotExisting(val message: String) : CommentResult {
     override fun success() = false
 }
