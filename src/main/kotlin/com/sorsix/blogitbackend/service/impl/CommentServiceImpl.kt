@@ -20,25 +20,27 @@ class CommentServiceImpl(
 
     override fun findAll(): List<Comment> = commentRepository.findAll()
 
-    override fun like(comment_id: Long): CommentLikedResult {
+    override fun like(comment_id: Long, user_id: Long): CommentLikedResult {
+
+        if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
 
         val comment = commentRepository.findByIdOrNull(comment_id)
 
         return comment?.let {
 
-            val isSuccessful = commentRepository.like(comment.id, comment.numberOfLikes)
+            val isSuccessful = commentRepository.like(comment.id, comment.numberOfLikes + 1)
 
-            if(isSuccessful == 1) {
-              return CommentLiked(
-                  Comment(
-                      id = comment.id,
-                      content = comment.content,
-                      dateCreated = comment.dateCreated,
-                      numberOfLikes = comment.numberOfLikes + 1,
-                      user_id = comment.user_id,
-                      blog_id = comment.blog_id
-                  )
-              )
+            if (isSuccessful == 1) {
+                return CommentLiked(
+                    Comment(
+                        id = comment.id,
+                        content = comment.content,
+                        dateCreated = comment.dateCreated,
+                        numberOfLikes = comment.numberOfLikes + 1,
+                        user_id = comment.user_id,
+                        blog_id = comment.blog_id
+                    )
+                )
             } else {
                 CommentNotLiked("Comment was not liked")
             }
