@@ -49,6 +49,10 @@ class BlogServiceImpl(
         else BlogUpdateError("Blog update error.")
     }
 
+    override fun like(user_id: Long, blog_id: Long): BlogLikeResult {
+        return BlogAlreadyLiked("")
+    }
+
     override fun delete(blog_id: Long, user_id: Long) {
         val blog = blogRepository.findByIdOrNull(blog_id) ?: return
         val user = userRepository.findByIdOrNull(user_id) ?: return
