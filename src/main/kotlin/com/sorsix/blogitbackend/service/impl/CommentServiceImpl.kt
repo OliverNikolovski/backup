@@ -1,8 +1,10 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Comment
+import com.sorsix.blogitbackend.model.keys.CommentLikeKey
 import com.sorsix.blogitbackend.model.results.comment.*
 import com.sorsix.blogitbackend.repository.BlogRepository
+import com.sorsix.blogitbackend.repository.CommentLikeRepository
 import com.sorsix.blogitbackend.repository.CommentRepository
 import com.sorsix.blogitbackend.repository.UserRepository
 import com.sorsix.blogitbackend.service.CommentService
@@ -15,7 +17,8 @@ import javax.transaction.Transactional
 class CommentServiceImpl(
     val commentRepository: CommentRepository,
     val userRepository: UserRepository,
-    val blogRepository: BlogRepository
+    val blogRepository: BlogRepository,
+    val commentLikeRepository: CommentLikeRepository
 ) : CommentService {
 
     override fun findAll(): List<Comment> = commentRepository.findAll()
@@ -27,6 +30,10 @@ class CommentServiceImpl(
         val comment = commentRepository.findByIdOrNull(comment_id)
 
         return comment?.let {
+
+            val id = CommentLikeKey(user_id, comment_id)
+
+            if (!commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already liked")
 
             val isSuccessful = commentRepository.like(comment.id, comment.numberOfLikes + 1)
 
