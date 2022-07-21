@@ -54,7 +54,7 @@ class BlogServiceImpl(
     }
 
     @Transactional
-    override fun like(user_id: Long, blog_id: Long): BlogLikeResult {
+    override fun upvote(user_id: Long, blog_id: Long): BlogLikeResult {
         if(!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
         val blog = blogRepository.findByIdOrNull(blog_id) ?: return BlogNotExisting("Blog does not exist")
 
@@ -66,7 +66,7 @@ class BlogServiceImpl(
 
         if (blogLikeRepository.existsById(id)) return BlogAlreadyLiked("Blog is already liked")
 
-        val count = blogRepository.like(blog.id, blog.numberOfLikes + 1)
+        val count = blogRepository.upvote(blog.id)
         return if (count > 0) {
             blogLikeRepository.save(BlogLike(id))
             return BlogLiked(blog)

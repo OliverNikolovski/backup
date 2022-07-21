@@ -17,7 +17,7 @@ interface BlogService {
 
     fun update(title: String, content: String, blog_id: Long, user_id: Long): BlogUpdateResult
 
-    fun like(user_id: Long, blog_id: Long): BlogLikeResult
+    fun upvote(user_id: Long, blog_id: Long): BlogLikeResult
 
     fun delete(blog_id: Long, user_id: Long)
 
