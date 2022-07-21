@@ -1,6 +1,7 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Comment
+import com.sorsix.blogitbackend.model.CommentLike
 import com.sorsix.blogitbackend.model.keys.CommentLikeKey
 import com.sorsix.blogitbackend.model.results.comment.*
 import com.sorsix.blogitbackend.repository.BlogRepository
@@ -23,6 +24,7 @@ class CommentServiceImpl(
 
     override fun findAll(): List<Comment> = commentRepository.findAll()
 
+    @Transactional
     override fun like(comment_id: Long, user_id: Long): CommentLikedResult {
 
         if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
@@ -33,21 +35,13 @@ class CommentServiceImpl(
 
             val id = CommentLikeKey(user_id, comment_id)
 
-            if (!commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already liked")
+            if (commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already liked")
 
             val isSuccessful = commentRepository.like(comment.id, comment.numberOfLikes + 1)
 
             if (isSuccessful == 1) {
-                return CommentLiked(
-                    Comment(
-                        id = comment.id,
-                        content = comment.content,
-                        dateCreated = comment.dateCreated,
-                        numberOfLikes = comment.numberOfLikes + 1,
-                        user_id = comment.user_id,
-                        blog_id = comment.blog_id
-                    )
-                )
+                commentLikeRepository.save(CommentLike(id))
+                return CommentLiked(comment)
             } else {
                 CommentNotLiked("Comment was not liked")
             }
