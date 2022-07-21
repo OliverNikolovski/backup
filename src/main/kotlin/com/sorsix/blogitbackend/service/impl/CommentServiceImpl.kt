@@ -1,8 +1,10 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Comment
+import com.sorsix.blogitbackend.model.keys.CommentLikeKey
 import com.sorsix.blogitbackend.model.results.comment.*
 import com.sorsix.blogitbackend.repository.BlogRepository
+import com.sorsix.blogitbackend.repository.CommentLikeRepository
 import com.sorsix.blogitbackend.repository.CommentRepository
 import com.sorsix.blogitbackend.repository.UserRepository
 import com.sorsix.blogitbackend.service.CommentService
@@ -15,30 +17,37 @@ import javax.transaction.Transactional
 class CommentServiceImpl(
     val commentRepository: CommentRepository,
     val userRepository: UserRepository,
-    val blogRepository: BlogRepository
+    val blogRepository: BlogRepository,
+    val commentLikeRepository: CommentLikeRepository
 ) : CommentService {
 
     override fun findAll(): List<Comment> = commentRepository.findAll()
 
-    override fun like(comment_id: Long): CommentLikedResult {
+    override fun like(comment_id: Long, user_id: Long): CommentLikedResult {
+
+        if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
 
         val comment = commentRepository.findByIdOrNull(comment_id)
 
         return comment?.let {
 
-            val isSuccessful = commentRepository.like(comment.id, comment.numberOfLikes)
+            val id = CommentLikeKey(user_id, comment_id)
 
-            if(isSuccessful == 1) {
-              return CommentLiked(
-                  Comment(
-                      id = comment.id,
-                      content = comment.content,
-                      dateCreated = comment.dateCreated,
-                      numberOfLikes = comment.numberOfLikes + 1,
-                      user_id = comment.user_id,
-                      blog_id = comment.blog_id
-                  )
-              )
+            if (!commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already liked")
+
+            val isSuccessful = commentRepository.like(comment.id, comment.numberOfLikes + 1)
+
+            if (isSuccessful == 1) {
+                return CommentLiked(
+                    Comment(
+                        id = comment.id,
+                        content = comment.content,
+                        dateCreated = comment.dateCreated,
+                        numberOfLikes = comment.numberOfLikes + 1,
+                        user_id = comment.user_id,
+                        blog_id = comment.blog_id
+                    )
+                )
             } else {
                 CommentNotLiked("Comment was not liked")
             }

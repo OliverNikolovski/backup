@@ -9,7 +9,7 @@ interface CommentService {
 
     fun findAll(): List<Comment>
 
-    fun like(comment_id: Long): CommentLikedResult
+    fun like(comment_id: Long, user_id: Long): CommentLikedResult
 
     fun save(content: String, user_id: Long, blog_id: Long): CommentSaveResult
 
