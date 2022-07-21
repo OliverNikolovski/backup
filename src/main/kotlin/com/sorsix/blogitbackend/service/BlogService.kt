@@ -3,10 +3,9 @@ package com.sorsix.blogitbackend.service
 import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.results.blog.BlogCreateResult
 import com.sorsix.blogitbackend.model.results.blog.BlogLikeResult
-import com.sorsix.blogitbackend.model.results.blog.BlogResult
 import com.sorsix.blogitbackend.model.results.blog.BlogUpdateResult
 import org.springframework.data.domain.Page
-import java.awt.print.Pageable
+import org.springframework.data.domain.Pageable
 
 interface BlogService {
 
