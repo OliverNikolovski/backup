@@ -1,10 +1,7 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Blog
-import com.sorsix.blogitbackend.model.BlogLike
-import com.sorsix.blogitbackend.model.keys.BlogLikeKey
 import com.sorsix.blogitbackend.model.results.blog.*
-import com.sorsix.blogitbackend.repository.BlogLikeRepository
 import com.sorsix.blogitbackend.repository.BlogRepository
 import com.sorsix.blogitbackend.repository.UserRepository
 import com.sorsix.blogitbackend.service.BlogService
@@ -19,7 +16,6 @@ import javax.transaction.Transactional
 class BlogServiceImpl(
     private val blogRepository: BlogRepository,
     private val userRepository: UserRepository,
-    private val blogLikeRepository: BlogLikeRepository
 ) : BlogService {
     override fun findAll(): List<Blog> {
         return blogRepository.findAll()
@@ -58,17 +54,13 @@ class BlogServiceImpl(
         if(!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
         val blog = blogRepository.findByIdOrNull(blog_id) ?: return BlogNotExisting("Blog with id $blog_id does not exist")
 
-        if (blogLikeRepository.existsById(BlogLikeKey(user_id, blog_id))) {
+        if (blogRepository.isLikedByUser(blog_id, user_id)) {
             return BlogAlreadyLiked("Blog is already liked")
         }
 
-        val id = BlogLikeKey(user_id, blog_id)
-
-        if (blogLikeRepository.existsById(id)) return BlogAlreadyLiked("Blog is already liked")
-
         val count = blogRepository.upvote(blog.id)
         return if (count > 0) {
-            blogLikeRepository.save(BlogLike(id))
+            blogRepository.markBlogAsLikedByUser(blog_id, user_id)
             return BlogLiked(blog)
         }
         else {
