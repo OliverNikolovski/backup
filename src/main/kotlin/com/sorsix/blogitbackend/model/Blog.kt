@@ -23,6 +23,6 @@ data class Blog(
     @Column(name = "estimated_read_time")
     val estimatedReadTime: Int,
 
-    val user_id: Long
+    val user_id: Long?
 )
 

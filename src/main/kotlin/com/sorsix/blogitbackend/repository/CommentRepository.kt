@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CommentRepository : JpaRepository<Comment, Long> {
 
-    @Modifying
-    @Query("update Comment c set c.numberOfLikes = :number_of_likes where c.id = :id")
-    fun like(id: Long, number_of_likes: Int): Int
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Comment c set c.numberOfLikes = c.numberOfLikes + 1 where c.id = :id")
+    fun upvote(id: Long): Int
 }

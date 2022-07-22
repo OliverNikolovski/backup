@@ -25,7 +25,7 @@ class CommentServiceImpl(
     override fun findAll(): List<Comment> = commentRepository.findAll()
 
     @Transactional
-    override fun like(comment_id: Long, user_id: Long): CommentLikedResult {
+    override fun upvote(comment_id: Long, user_id: Long): CommentLikedResult {
         if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
 
         val comment = commentRepository.findByIdOrNull(comment_id)
@@ -33,15 +33,15 @@ class CommentServiceImpl(
         return comment?.let {
             val id = CommentLikeKey(user_id, comment_id)
 
-            if (commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already liked")
+            if (commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already upvoted")
 
-            val isSuccessful = commentRepository.like(comment.id, comment.numberOfLikes + 1)
+            val isSuccessful = commentRepository.upvote(comment.id)
 
             if (isSuccessful == 1) {
                 commentLikeRepository.save(CommentLike(id))
                 return CommentLiked(comment)
             } else {
-                CommentNotLiked("Error liking comment")
+                CommentNotLiked("Error upvoting comment")
             }
         } ?: CommentNotExisting("Comment with id $comment_id does not exist")
     }

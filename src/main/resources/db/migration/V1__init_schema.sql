@@ -23,7 +23,7 @@ CREATE TABLE public.blog
     number_of_likes     integer default 0,
     estimated_read_time integer                  not null,
     picture             bytea,
-    user_id             bigserial                not null,
+    user_id             bigserial,
     foreign key (user_id) references users (id) on update cascade on delete cascade
 );
 
@@ -33,7 +33,7 @@ CREATE TABLE public.comment
     content         text                     not null,
     date_created    timestamp with time zone not null,
     number_of_likes integer default 0,
-    user_id         bigserial                not null,
+    user_id         bigserial,
     blog_id         bigserial                not null,
     foreign key (user_id) references users (id) on update cascade on delete cascade,
     foreign key (blog_id) references blog (id) on update cascade on delete cascade
