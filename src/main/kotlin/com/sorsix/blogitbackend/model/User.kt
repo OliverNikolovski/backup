@@ -20,28 +20,28 @@ data class User(
     val password1: String,
 
     @Column
-    val email: String,
+    val email: String = "",
 
     @Column(name = "short_bio")
-    val shortBio: String,
+    val shortBio: String = "",
 
     @Column(name = "profile_picture")
-    val profilePicture: ByteArray,
+    val profilePicture: ByteArray = ByteArray(0),
 
     @Enumerated(EnumType.STRING)
     val role: Role,
 
     @Column(name = "is_account_non_expired")
-    val isAccountNonExpired1: Boolean,
+    val isAccountNonExpired1: Boolean = true,
 
     @Column(name = "is_account_non_locked")
-    val isAccountNonLocked1: Boolean,
+    val isAccountNonLocked1: Boolean = true,
 
     @Column(name = "is_credentials_non_expired")
-    val isCredentialsNonExpired1: Boolean,
+    val isCredentialsNonExpired1: Boolean = true,
 
     @Column(name = "is_enabled")
-    val isEnabled1: Boolean
+    val isEnabled1: Boolean = true
 ) : UserDetails {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
