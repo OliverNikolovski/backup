@@ -61,7 +61,7 @@ class UserRepositoryTest : AbstractTest() {
     fun `testing getBookmarks and createBookmarks`() {
         val savedUser = userRepository.save(User(0, "john.doe", "pass", "email", "shortBio", role = Role.ROLE_USER))
         val savedBlog = blogRepository.save(Blog(0, "Title", "Content", ZonedDateTime.now(), 0, 0, savedUser.id))
-        userRepository.createBookmarks(savedUser.id, savedBlog.id, ZonedDateTime.now())
+        userRepository.createBookmark(savedUser.id, savedBlog.id, ZonedDateTime.now())
         val bookmarks = userRepository.getBookmarks(savedUser.id)
 
         assertEquals(1, bookmarks.size)

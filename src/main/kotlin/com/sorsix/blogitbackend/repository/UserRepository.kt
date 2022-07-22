@@ -10,9 +10,9 @@ import java.time.ZonedDateTime
 @Repository
 interface UserRepository : JpaRepository<User, Long> {
 
-    fun findByUsername1(username: String): User?
+    fun findByUsername(username: String): User?
 
-    fun existsByUsername1(username: String): Boolean
+    fun existsByUsername(username: String): Boolean
 
     @Query(value = "select b.blog_id from bookmarks b where b.user_id = ?1", nativeQuery = true)
     fun getBookmarks(user_id: Long): List<Long>
@@ -24,5 +24,5 @@ interface UserRepository : JpaRepository<User, Long> {
         values(?1, ?2, ?3)
         """, nativeQuery = true
     )
-    fun createBookmarks(user_id: Long, blog_id: Long, date_created: ZonedDateTime)
+    fun createBookmark(user_id: Long, blog_id: Long, date_created: ZonedDateTime)
 }

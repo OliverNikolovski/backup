@@ -11,38 +11,40 @@ import javax.persistence.*
 data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    private val id: Long?,
 
     @Column(unique = true, length = 50, nullable = false, name = "username")
-    val username1: String,
+    private val username: String,
 
     @Column(nullable = false, name = "password")
-    val password1: String,
+    private val password: String,
 
     @Column
-    val email: String = "",
+    private val email: String?,
 
     @Column(name = "short_bio")
-    val shortBio: String = "",
+    private val shortBio: String?,
 
     @Column(name = "profile_picture")
-    val profilePicture: ByteArray = ByteArray(0),
+    private val profilePicture: ByteArray?,
 
     @Enumerated(EnumType.STRING)
-    val role: Role,
+    private val role: Role = Role.ROLE_USER,
 
     @Column(name = "is_account_non_expired")
-    val isAccountNonExpired1: Boolean = true,
+    private val isAccountNonExpired1: Boolean = true,
 
     @Column(name = "is_account_non_locked")
-    val isAccountNonLocked1: Boolean = true,
+    private val isAccountNonLocked1: Boolean = true,
 
     @Column(name = "is_credentials_non_expired")
-    val isCredentialsNonExpired1: Boolean = true,
+    private val isCredentialsNonExpired1: Boolean = true,
 
     @Column(name = "is_enabled")
-    val isEnabled1: Boolean = true
+    private val isEnabled1: Boolean = true
 ) : UserDetails {
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -63,11 +65,11 @@ data class User(
     }
 
     override fun getPassword(): String {
-        return password1
+        return password
     }
 
     override fun getUsername(): String {
-        return username1
+        return username
     }
 
     override fun isAccountNonExpired(): Boolean {
