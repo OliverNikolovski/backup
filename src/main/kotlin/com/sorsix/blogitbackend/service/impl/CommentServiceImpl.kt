@@ -26,13 +26,11 @@ class CommentServiceImpl(
 
     @Transactional
     override fun like(comment_id: Long, user_id: Long): CommentLikedResult {
-
         if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
 
         val comment = commentRepository.findByIdOrNull(comment_id)
 
         return comment?.let {
-
             val id = CommentLikeKey(user_id, comment_id)
 
             if (commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already liked")
@@ -43,9 +41,8 @@ class CommentServiceImpl(
                 commentLikeRepository.save(CommentLike(id))
                 return CommentLiked(comment)
             } else {
-                CommentNotLiked("Comment was not liked")
+                CommentNotLiked("Error liking comment")
             }
-
         } ?: CommentNotExisting("Comment with id $comment_id does not exist")
     }
 
@@ -55,18 +52,21 @@ class CommentServiceImpl(
 
         if (!blogRepository.existsById(blog_id)) return BlogNotExisting("Blog with id $blog_id does not exist")
 
-        return CommentCreated(
-            commentRepository.save(
-                Comment(
-                    id = 0,
-                    content = content,
-                    dateCreated = ZonedDateTime.now(),
-                    numberOfLikes = 0,
-                    user_id = user_id,
-                    blog_id = blog_id
-                )
-            )
+        val c = Comment(
+            id = 0,
+            content = content,
+            dateCreated = ZonedDateTime.now(),
+            numberOfLikes = 0,
+            user_id = user_id,
+            blog_id = blog_id
         )
+
+        return try {
+            CommentCreated(commentRepository.save(c))
+        } catch (ex: Exception) {
+            CommentCreateError("Error creating comment")
+        }
+
     }
 
     @Transactional
@@ -81,18 +81,21 @@ class CommentServiceImpl(
 
         commentRepository.deleteById(comment_id)
 
-        return CommentCreated(
-            commentRepository.save(
-                Comment(
-                    id = comment.id,
-                    content = comment.content,
-                    dateCreated = comment.dateCreated,
-                    numberOfLikes = comment.numberOfLikes,
-                    user_id = comment.user_id,
-                    blog_id = comment.blog_id
-                )
-            )
+        val c = Comment(
+            id = comment.id,
+            content = comment.content,
+            dateCreated = comment.dateCreated,
+            numberOfLikes = comment.numberOfLikes,
+            user_id = comment.user_id,
+            blog_id = comment.blog_id
         )
+
+        return try {
+            CommentCreated(commentRepository.save(c))
+        } catch (ex: Exception) {
+            CommentCreateError("Error updating comment")
+        }
+
     }
 
     override fun delete(comment_id: Long) {

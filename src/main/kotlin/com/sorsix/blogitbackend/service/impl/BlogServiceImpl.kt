@@ -40,12 +40,12 @@ class BlogServiceImpl(
             } catch (ex: Exception) {
                 BlogCreateError("Error creating blog")
             }
-        } ?: UserNotExisting("Blog can't be created because user does not exist.")
+        } ?: UserNotExisting("User with id $user_id does not exist")
     }
 
     override fun update(title: String, content: String, blog_id: Long, user_id: Long): BlogUpdateResult {
-        val blog = blogRepository.findByIdOrNull(blog_id) ?: return BlogNotExisting("Blog does not exist")
-        val user = userRepository.findByIdOrNull(user_id) ?: return UserNotExisting("User does not exist")
+        val blog = blogRepository.findByIdOrNull(blog_id) ?: return BlogNotExisting("Blog with id $blog_id does not exist")
+        val user = userRepository.findByIdOrNull(user_id) ?: return UserNotExisting("User with id $user_id does not exist")
         if (blog.user_id != user.id)
             return BlogNotOwnedBySpecifiedUser("Permission denied to edit the blog")
         return if (blogRepository.update(id = blog_id, title = title, content = content) > 0)
@@ -56,10 +56,10 @@ class BlogServiceImpl(
     @Transactional
     override fun like(user_id: Long, blog_id: Long): BlogLikeResult {
         if(!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
-        val blog = blogRepository.findByIdOrNull(blog_id) ?: return BlogNotExisting("Blog does not exist")
+        val blog = blogRepository.findByIdOrNull(blog_id) ?: return BlogNotExisting("Blog with id $blog_id does not exist")
 
         if (blogLikeRepository.existsById(BlogLikeKey(user_id, blog_id))) {
-            return BlogAlreadyLiked("Blog already liked")
+            return BlogAlreadyLiked("Blog is already liked")
         }
 
         val id = BlogLikeKey(user_id, blog_id)

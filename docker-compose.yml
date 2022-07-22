@@ -5,7 +5,7 @@ services:
     image: "postgres:latest"
     #   Give the container the name my_postgres. You can change to something else.
     container_name: "blogit_db"
-    #   Setup the username, password, and database name. You can change these values.
+    #   Set up the username, password, and database name. You can change these values.
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
