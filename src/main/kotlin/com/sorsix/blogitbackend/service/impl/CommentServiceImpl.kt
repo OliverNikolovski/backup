@@ -1,11 +1,10 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Comment
-import com.sorsix.blogitbackend.model.CommentLike
-import com.sorsix.blogitbackend.model.keys.CommentLikeKey
 import com.sorsix.blogitbackend.model.results.comment.*
+import com.sorsix.blogitbackend.model.results.comment.BlogNotExisting
+import com.sorsix.blogitbackend.model.results.comment.UserNotExisting
 import com.sorsix.blogitbackend.repository.BlogRepository
-import com.sorsix.blogitbackend.repository.CommentLikeRepository
 import com.sorsix.blogitbackend.repository.CommentRepository
 import com.sorsix.blogitbackend.repository.UserRepository
 import com.sorsix.blogitbackend.service.CommentService
@@ -19,29 +18,30 @@ class CommentServiceImpl(
     val commentRepository: CommentRepository,
     val userRepository: UserRepository,
     val blogRepository: BlogRepository,
-    val commentLikeRepository: CommentLikeRepository
 ) : CommentService {
 
     override fun findAll(): List<Comment> = commentRepository.findAll()
 
     @Transactional
-    override fun upvote(comment_id: Long, user_id: Long): CommentLikedResult {
+    override fun like(comment_id: Long, user_id: Long): CommentLikedResult {
         if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
 
         val comment = commentRepository.findByIdOrNull(comment_id)
 
         return comment?.let {
-            val id = CommentLikeKey(user_id, comment_id)
+            if (commentRepository.isLikedByUser(comment_id, user_id)) {
+                val changedRecords = commentRepository.unlike(comment_id)
+                return if (changedRecords > 0) CommentUnliked("Comment successfully unliked.")
+                else CommentLikeError("Error liking comment.")
+            }
 
-            if (commentLikeRepository.existsById(id)) return CommentAlreadyLiked("Comment is already upvoted")
-
-            val isSuccessful = commentRepository.upvote(comment.id)
+            val isSuccessful = commentRepository.like(comment.id)
 
             if (isSuccessful == 1) {
-                commentLikeRepository.save(CommentLike(id))
+                commentRepository.markCommentAsLikedByUser(comment_id, user_id)
                 return CommentLiked(comment)
             } else {
-                CommentNotLiked("Error upvoting comment")
+                CommentLikeError("Error upvoting comment")
             }
         } ?: CommentNotExisting("Comment with id $comment_id does not exist")
     }
@@ -98,7 +98,13 @@ class CommentServiceImpl(
 
     }
 
-    override fun delete(comment_id: Long) {
-        commentRepository.deleteById(comment_id)
+    override fun delete(comment_id: Long, user_id: Long): CommentDeleteResult {
+        val comment = commentRepository.findByIdOrNull(comment_id) ?: return CommentNotExisting("Comment does not exist.")
+        val user = userRepository.findByIdOrNull(user_id) ?: return UserNotExisting("User does not exist.")
+        if (comment.user_id != user.id) return CommentDeletePermissionDenied("Permission denied.")
+        commentRepository.delete(comment)
+        commentRepository.findByIdOrNull(comment.id)?.let {
+            return CommentDeleteError("Comment delete error.")
+        } ?: return CommentDeleted(comment)
     }
 }

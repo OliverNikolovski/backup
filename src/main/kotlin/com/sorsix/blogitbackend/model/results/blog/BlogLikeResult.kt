@@ -9,11 +9,11 @@ data class BlogLiked(val blog: Blog) : BlogLikeResult {
     override fun success() = true
 }
 
-data class BlogAlreadyLiked(val message: String) : BlogLikeResult {
+data class BlogUnliked(val message: String) : BlogLikeResult {
     override fun success() = true
 }
 
 data class BlogLikeError(val message: String) : BlogLikeResult {
-    override fun success() = true
+    override fun success() = false
 }
 

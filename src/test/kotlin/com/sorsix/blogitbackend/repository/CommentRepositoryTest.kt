@@ -2,6 +2,7 @@ package com.sorsix.blogitbackend.repository
 
 import com.sorsix.blogitbackend.model.Comment
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -44,17 +45,31 @@ class CommentRepositoryTest : AbstractTest() {
         val comment = Comment(id = 0, content = "Comment content", dateCreated = ZonedDateTime.now(),
             numberOfLikes = 2, user_id = 1, blog_id = 1)
         val savedComment = commentRepository.save(comment)
-        var affectedRecords = commentRepository.upvote(savedComment.id)
+        var affectedRecords = commentRepository.like(savedComment.id)
         var upvotedComment = commentRepository.findByIdOrNull(savedComment.id)
         assertEquals(1, affectedRecords)
         assertEquals(3, upvotedComment!!.numberOfLikes)
-        affectedRecords = commentRepository.upvote(upvotedComment.id)
+        affectedRecords = commentRepository.like(upvotedComment.id)
         upvotedComment = commentRepository.findByIdOrNull(upvotedComment.id)
         assertEquals(1, affectedRecords)
         assertEquals(4, upvotedComment!!.numberOfLikes)
-        commentRepository.upvote(upvotedComment.id)
-        commentRepository.upvote(upvotedComment.id)
+        commentRepository.like(upvotedComment.id)
+        commentRepository.like(upvotedComment.id)
         upvotedComment = commentRepository.findByIdOrNull(upvotedComment.id)
         assertEquals(6, upvotedComment!!.numberOfLikes)
+    }
+
+    @Test
+    fun `test mark blog as liked by user`() {
+        jdbcTempate.execute("insert into users(id, username, password, role) values(2, 'john.travolta', 'p1', 'ROLE_USER')")
+        jdbcTempate.execute("""
+            |insert into comment(id, content, date_created, user_id, blog_id) 
+            |values (1, 'Title 1 content', '2016-06-22 19:10:25-07', 1, 1)""".trimMargin())
+        jdbcTempate.execute("""
+            |insert into comment(id, content, date_created, user_id, blog_id) 
+            |values (2, 'Title 2 content', '2016-06-22 19:10:25-07', 2, 1)""".trimMargin())
+        commentRepository.markCommentAsLikedByUser(1, 1)
+        Assertions.assertTrue(commentRepository.isLikedByUser(1, 1))
+        Assertions.assertFalse(commentRepository.isLikedByUser(1, 2))
     }
 }

@@ -60,18 +60,18 @@ class BlogRepositoryTest : AbstractTest() {
         val blog = Blog(id = 0, title = "Test title", content = "Test content", dateCreated = ZonedDateTime.now(),
             numberOfLikes = 0, estimatedReadTime = 0, 1)
         val savedBlog = blogRepository.save(blog)
-        var affectedRecords = blogRepository.upvote(savedBlog.id)
+        var affectedRecords = blogRepository.like(savedBlog.id)
         var updatedBlog = blogRepository.findByIdOrNull(savedBlog.id)
         assertEquals(1, affectedRecords)
         assertEquals(1, updatedBlog!!.numberOfLikes)
         assertEquals(0, updatedBlog.estimatedReadTime)
-        affectedRecords = blogRepository.upvote(updatedBlog.id)
+        affectedRecords = blogRepository.like(updatedBlog.id)
         updatedBlog = blogRepository.findByIdOrNull(updatedBlog.id)
         assertEquals(1, affectedRecords)
         assertEquals(2, updatedBlog!!.numberOfLikes)
         assertEquals(0, updatedBlog.estimatedReadTime)
-        blogRepository.upvote(updatedBlog.id)
-        blogRepository.upvote(updatedBlog.id)
+        blogRepository.like(updatedBlog.id)
+        blogRepository.like(updatedBlog.id)
         updatedBlog = blogRepository.findByIdOrNull(updatedBlog.id)
         assertEquals(4, updatedBlog!!.numberOfLikes)
     }
@@ -87,10 +87,10 @@ class BlogRepositoryTest : AbstractTest() {
             |values (2, 'Blog 2 title', 'Blog 2 content', '2016-06-22 19:10:25-07', 5, 1)""".trimMargin())
         jdbcTempate.execute("insert into likes_blog values (1, 1)")
         jdbcTempate.execute("insert into likes_blog values (2, 2)")
-        assertTrue(blogRepository.isLikedByUser(1, 1))
-        assertTrue(blogRepository.isLikedByUser(2, 2))
-        assertFalse(blogRepository.isLikedByUser(1, 2))
-        assertFalse(blogRepository.isLikedByUser(2, 1))
+        assertTrue(blogRepository.isBlogLikedByUser(1, 1))
+        assertTrue(blogRepository.isBlogLikedByUser(2, 2))
+        assertFalse(blogRepository.isBlogLikedByUser(1, 2))
+        assertFalse(blogRepository.isBlogLikedByUser(2, 1))
     }
 
     @Test
@@ -103,8 +103,30 @@ class BlogRepositoryTest : AbstractTest() {
             |insert into blog(id, title, content, date_created, estimated_read_time, user_id) 
             |values (2, 'Blog 2 title', 'Blog 2 content', '2016-06-22 19:10:25-07', 5, 1)""".trimMargin())
         blogRepository.markBlogAsLikedByUser(1, 1)
-        assertTrue(blogRepository.isLikedByUser(1, 1))
-        assertFalse(blogRepository.isLikedByUser(1, 2))
+        assertTrue(blogRepository.isBlogLikedByUser(1, 1))
+        assertFalse(blogRepository.isBlogLikedByUser(1, 2))
+    }
+
+    @Test
+    fun `test unmark blog as liked by user`() {
+        jdbcTempate.execute("insert into users(id, username, password, role) values(2, 'john.travolta', 'p1', 'ROLE_USER')")
+        jdbcTempate.execute("""
+            |insert into blog(id, title, content, date_created, estimated_read_time, user_id) 
+            |values (1, 'Blog 1 title', 'Blog 1 content', '2016-06-22 19:10:25-07', 5, 1)""".trimMargin())
+        jdbcTempate.execute("""
+            |insert into blog(id, title, content, date_created, estimated_read_time, user_id) 
+            |values (2, 'Blog 2 title', 'Blog 2 content', '2016-06-22 19:10:25-07', 5, 1)""".trimMargin())
+        blogRepository.markBlogAsLikedByUser(1, 1)
+        blogRepository.markBlogAsLikedByUser(2, 2)
+        assertTrue(blogRepository.isBlogLikedByUser(1, 1))
+        assertTrue(blogRepository.isBlogLikedByUser(2, 2))
+        assertFalse(blogRepository.isBlogLikedByUser(1, 2))
+        blogRepository.unmarkBlogAsLikedByUser(1, 1)
+        assertFalse(blogRepository.isBlogLikedByUser(1, 1))
+        assertTrue(blogRepository.isBlogLikedByUser(2, 2))
+        blogRepository.unmarkBlogAsLikedByUser(2, 2)
+        assertFalse(blogRepository.isBlogLikedByUser(1, 1))
+        assertFalse(blogRepository.isBlogLikedByUser(2, 2))
     }
 
 }

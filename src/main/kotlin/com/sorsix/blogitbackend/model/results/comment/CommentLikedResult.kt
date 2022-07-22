@@ -9,10 +9,10 @@ data class CommentLiked(val comment: Comment) : CommentLikedResult {
     override fun success() = true
 }
 
-data class CommentAlreadyLiked(val message: String) : CommentLikedResult {
-    override fun success() = false
+data class CommentUnliked(val message: String) : CommentLikedResult {
+    override fun success() = true
 }
 
-data class CommentNotLiked(val message: String) : CommentLikedResult {
+data class CommentLikeError(val message: String) : CommentLikedResult {
     override fun success() = false
 }

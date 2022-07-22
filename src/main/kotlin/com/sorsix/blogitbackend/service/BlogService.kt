@@ -2,6 +2,7 @@ package com.sorsix.blogitbackend.service
 
 import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.results.blog.BlogCreateResult
+import com.sorsix.blogitbackend.model.results.blog.BlogDeleteResult
 import com.sorsix.blogitbackend.model.results.blog.BlogLikeResult
 import com.sorsix.blogitbackend.model.results.blog.BlogUpdateResult
 import org.springframework.data.domain.Page
@@ -17,8 +18,8 @@ interface BlogService {
 
     fun update(title: String, content: String, blog_id: Long, user_id: Long): BlogUpdateResult
 
-    fun upvote(user_id: Long, blog_id: Long): BlogLikeResult
+    fun like(user_id: Long, blog_id: Long): BlogLikeResult
 
-    fun delete(blog_id: Long, user_id: Long)
+    fun delete(blog_id: Long, user_id: Long): BlogDeleteResult
 
 }
