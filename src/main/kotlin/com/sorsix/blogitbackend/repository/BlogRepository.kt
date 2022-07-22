@@ -19,5 +19,4 @@ interface BlogRepository: JpaRepository<Blog, Long> {
 
     @Query(value = "select exists(select 1 from likes_blog where blog_id = ?1 and user_id = ?2)", nativeQuery = true)
     fun isLikedByUser(blog_id: Long, user_id: Long): Boolean
-
 }
