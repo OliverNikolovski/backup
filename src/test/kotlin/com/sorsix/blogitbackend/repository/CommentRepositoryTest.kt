@@ -57,6 +57,4 @@ class CommentRepositoryTest : AbstractTest() {
         upvotedComment = commentRepository.findByIdOrNull(upvotedComment.id)
         assertEquals(6, upvotedComment!!.numberOfLikes)
     }
-
-
 }
