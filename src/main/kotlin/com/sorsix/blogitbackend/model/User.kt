@@ -11,7 +11,7 @@ import javax.persistence.*
 data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private val id: Long?,
+    val id: Long?,
 
     @Column(unique = true, length = 50, nullable = false, name = "username")
     private val username: String,
@@ -20,28 +20,28 @@ data class User(
     private val password: String,
 
     @Column
-    private val email: String?,
+    val email: String?,
 
     @Column(name = "short_bio")
-    private val shortBio: String?,
+    val shortBio: String?,
 
     @Column(name = "profile_picture")
-    private val profilePicture: ByteArray?,
+    val profilePicture: ByteArray?,
 
     @Enumerated(EnumType.STRING)
-    private val role: Role = Role.ROLE_USER,
+    val role: Role = Role.ROLE_USER,
 
     @Column(name = "is_account_non_expired")
-    private val isAccountNonExpired1: Boolean = true,
+    val isAccountNonExpired1: Boolean = true,
 
     @Column(name = "is_account_non_locked")
-    private val isAccountNonLocked1: Boolean = true,
+    val isAccountNonLocked1: Boolean = true,
 
     @Column(name = "is_credentials_non_expired")
-    private val isCredentialsNonExpired1: Boolean = true,
+    val isCredentialsNonExpired1: Boolean = true,
 
     @Column(name = "is_enabled")
-    private val isEnabled1: Boolean = true
+    val isEnabled1: Boolean = true
 ) : UserDetails {
 
 
