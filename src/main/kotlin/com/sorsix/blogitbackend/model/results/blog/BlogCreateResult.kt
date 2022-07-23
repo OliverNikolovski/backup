@@ -1,10 +1,11 @@
 package com.sorsix.blogitbackend.model.results.blog
 
 import com.sorsix.blogitbackend.model.Blog
+import com.sorsix.blogitbackend.model.dto.BlogDto
 
 sealed interface BlogCreateResult : BlogResult
 
-data class BlogCreated(val blog: Blog) : BlogCreateResult {
+data class BlogCreated(val blogDto: BlogDto) : BlogCreateResult {
     override fun success() = true
 }
 

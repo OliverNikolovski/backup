@@ -1,11 +1,11 @@
 package com.sorsix.blogitbackend.model.results.blog
 
-import com.sorsix.blogitbackend.model.Blog
+import com.sorsix.blogitbackend.model.dto.BlogDto
 
 
 sealed interface BlogLikeResult: BlogResult
 
-data class BlogLiked(val blog: Blog) : BlogLikeResult {
+data class BlogLiked(val blogDto: BlogDto) : BlogLikeResult {
     override fun success() = true
 }
 

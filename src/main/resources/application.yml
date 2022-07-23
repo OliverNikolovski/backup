@@ -15,5 +15,10 @@ spring:
       - classpath:db/migration
     enabled: true
 
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
 server:
   port: 8083

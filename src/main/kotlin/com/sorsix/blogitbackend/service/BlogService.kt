@@ -29,9 +29,9 @@ interface BlogService {
 
     fun getBookmarksForUser(userId: Long): List<Blog>
 
-    fun createBookmarkForUser(userId: Long, blogId: Long, dateCreated: ZonedDateTime): BookmarkResult
+    fun createBookmarkForUser(userId: Long, blogId: Long): BookmarkResult
 
-    fun deleteBookmarkForUser(userId: Long, blogId: Long): BookmarkResult
+    //fun deleteBookmarkForUser(userId: Long, blogId: Long): BookmarkResult
 
     fun getBlogsByTag(tag: Tag): List<Blog>
 

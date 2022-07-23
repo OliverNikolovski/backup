@@ -1,10 +1,11 @@
 package com.sorsix.blogitbackend.model.results.blog
 
 import com.sorsix.blogitbackend.model.Blog
+import com.sorsix.blogitbackend.model.dto.BlogDto
 
 sealed interface BlogDeleteResult : BlogResult
 
-data class BlogDeleted(val blog: Blog) : BlogDeleteResult {
+data class BlogDeleted(val blogDto: BlogDto) : BlogDeleteResult {
     override fun success() = true
 }
 

@@ -10,6 +10,9 @@ import com.sorsix.blogitbackend.model.results.follow.Followed
 import com.sorsix.blogitbackend.model.results.follow.Unfollowed
 import com.sorsix.blogitbackend.model.results.user.*
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.io.InputStream
@@ -96,7 +99,8 @@ class UserServiceImpl(
         return userRepository.findAllById(followingIds)
     }
 
-    override fun loadUserByUsername(username: String) = userRepository.findByUsername(username)
+    override fun loadUserByUsername(username: String): UserDetails =
+        userRepository.findByUsername(username) ?: throw UsernameNotFoundException("Username does not exist.")
 
     private fun containsWhiteSpace(str: String) = str.matches(Regex(""".*\s+.*"""))
 }

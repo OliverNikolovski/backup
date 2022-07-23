@@ -1,6 +1,7 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Blog
+import com.sorsix.blogitbackend.model.dto.BlogDto
 import com.sorsix.blogitbackend.model.enumeration.Tag
 import com.sorsix.blogitbackend.model.exception.BlogNotFoundException
 import com.sorsix.blogitbackend.model.results.blog.*
@@ -39,7 +40,7 @@ class BlogServiceImpl(
             numberOfLikes = 0, estimatedReadTime = 0, user_id = user_id
         )
         return try {
-            BlogCreated(blogRepository.save(blog))
+            BlogCreated(toDto(blogRepository.save(blog)))
         } catch (ex: Exception) {
             BlogCreateError("Error creating blog")
         }
@@ -50,9 +51,9 @@ class BlogServiceImpl(
         val blog = findByIdOrThrow(blog_id)
         val user = userService.findByIdOrThrow(user_id)
         if (blog.user_id != user.id)
-            return BlogNotOwnedBySpecifiedUser("Permission denied to edit the blog")
+            return BlogUpdatePermissionDenied("Permission denied to edit the blog")
         return if (blogRepository.update(id = blog_id, title = title, content = content) > 0)
-            BlogUpdated(blogRepository.findById(blog_id).get())
+            BlogUpdated(toDto(blogRepository.findById(blog_id).get()))
         else BlogUpdateError("Blog update error.")
     }
 
@@ -69,7 +70,7 @@ class BlogServiceImpl(
         val changedRecords = blogRepository.like(blog.id)
         return if (changedRecords > 0) {
             blogRepository.markBlogAsLikedByUser(blog_id, user_id)
-            return BlogLiked(blog)
+            return BlogLiked(toDto(blog))
         }
         else {
             BlogLikeError("Error liking blog.")
@@ -83,7 +84,7 @@ class BlogServiceImpl(
         blogRepository.delete(blog)
         blogRepository.findByIdOrNull(blog_id)?.let {
             return BlogDeleteError("Blog delete error.")
-        } ?: return BlogDeleted(blog)
+        } ?: return BlogDeleted(toDto(blog))
     }
 
     override fun getBookmarksForUser(userId: Long): List<Blog> {
@@ -92,7 +93,7 @@ class BlogServiceImpl(
     }
 
     @Transactional
-    override fun createBookmarkForUser(userId: Long, blogId: Long, dateCreated: ZonedDateTime): BookmarkResult {
+    override fun createBookmarkForUser(userId: Long, blogId: Long): BookmarkResult {
         userService.findByIdOrThrow(userId)
         findByIdOrThrow(blogId)
         if (blogRepository.isBlogBookmarkedByUser(userId, blogId)) {
@@ -104,13 +105,13 @@ class BlogServiceImpl(
         else BookmarkError("Bookmark error.")
     }
 
-    @Transactional
-    override fun deleteBookmarkForUser(userId: Long, blogId: Long): BookmarkResult {
-        userService.findByIdOrThrow(userId)
-        findByIdOrThrow(blogId)
-        return if (blogRepository.deleteBookmarkForUser(userId, blogId) > 0) BookmarkRemoved("Bookmark removed.")
-        else BookmarkError("Bookmark error.")
-    }
+//    @Transactional
+//    override fun deleteBookmarkForUser(userId: Long, blogId: Long): BookmarkResult {
+//        userService.findByIdOrThrow(userId)
+//        findByIdOrThrow(blogId)
+//        return if (blogRepository.deleteBookmarkForUser(userId, blogId) > 0) BookmarkRemoved("Bookmark removed.")
+//        else BookmarkError("Bookmark error.")
+//    }
 
     override fun getBlogsByTag(tag: Tag): List<Blog> {
         val blogIds = blogRepository.findBlogsByTags(tag.name)
@@ -120,5 +121,13 @@ class BlogServiceImpl(
     override fun getBlogsByUser(userId: Long): List<Blog> {
         val blogIds = blogRepository.findBlogsByUser(userId)
         return blogRepository.findAllById(blogIds)
+    }
+
+    private fun toDto(blog: Blog): BlogDto {
+        return BlogDto(
+            title = blog.title, content = blog.content, dateCreated = blog.dateCreated,
+            estimatedReadTime = blog.estimatedReadTime,
+            numberOfLikes = blog.numberOfLikes
+        )
     }
 }
