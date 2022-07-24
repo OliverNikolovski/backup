@@ -1,4 +1,4 @@
-package com.sorsix.blogitbackend.api.requestresponseobjects.blog
+package com.sorsix.blogitbackend.api.requestresponseobjects
 
 data class BlogUpdateRequest(
     val title: String,

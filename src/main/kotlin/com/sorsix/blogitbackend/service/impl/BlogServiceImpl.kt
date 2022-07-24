@@ -63,7 +63,10 @@ class BlogServiceImpl(
         val blog = findByIdOrThrow(blog_id)
         if (blogRepository.isBlogLikedByUser(blog_id, user_id)) {
             val changedRecords = blogRepository.unlike(blog_id)
-            return if (changedRecords > 0) BlogUnliked("Blog successfully unliked.")
+            return if (changedRecords > 0) {
+                blogRepository.unmarkBlogAsLikedByUser(blog_id, user_id)
+                BlogUnliked("Blog successfully unliked.")
+            }
             else BlogLikeError("Error unliking blog.")
         }
 

@@ -1,6 +1,6 @@
 package com.sorsix.blogitbackend.api.controller
 
-import com.sorsix.blogitbackend.api.requestresponseobjects.blog.*
+import com.sorsix.blogitbackend.api.requestresponseobjects.*
 import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.dto.BlogDto
 import com.sorsix.blogitbackend.model.enumeration.Tag
@@ -11,15 +11,16 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/api/blogs")
 class BlogController(val blogService: BlogService) {
 
     @GetMapping("/all")
-    fun getAllBlogs(@RequestParam(required = false) tag: Tag?): ResponseEntity<List<Blog>> {
+    fun getAllBlogs(@RequestParam(required = false) tag: String?): ResponseEntity<List<Blog>> {
         return tag?.let {
-            ResponseEntity.ok(blogService.getBlogsByTag(it))
+            ResponseEntity.ok(blogService.getBlogsByTag(Tag.valueOf(tag.uppercase(Locale.getDefault()))))
         } ?: ResponseEntity.ok(blogService.findAll())
     }
 
@@ -49,9 +50,9 @@ class BlogController(val blogService: BlogService) {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    fun deleteBlog(@PathVariable(name = "id") blogId: Long, @RequestBody userId: Long): ResponseEntity<BlogDeleteResponse> {
-        return when (val result = blogService.delete(blogId, userId)) {
+    @DeleteMapping("/delete")
+    fun deleteBlog(@RequestBody request: BlogDeleteRequest): ResponseEntity<BlogDeleteResponse> {
+        return when (val result = blogService.delete(request.blogId, request.userId)) {
             is BlogDeleted -> ResponseEntity.ok(BlogDeleteResponse(blog = result.blogDto, message = "success"))
             is BlogDeletePermissionDenied ->
                 ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -62,9 +63,9 @@ class BlogController(val blogService: BlogService) {
         }
     }
 
-    @PostMapping("/upvote/{id}")
-    fun upvoteBlog(@PathVariable(name = "id") blogId: Long, @RequestBody userId: Long): ResponseEntity<BlogUpvoteResponse> {
-        return when (val result = blogService.like(userId, blogId)) {
+    @PostMapping("/upvote")
+    fun upvoteBlog(@RequestBody request: UpvoteRequest): ResponseEntity<BlogUpvoteResponse> {
+        return when (val result = blogService.like(request.userId, request.blogId)) {
             is BlogLiked -> ResponseEntity.ok(BlogUpvoteResponse(blog = result.blogDto, message = "success"))
             is BlogUnliked -> ResponseEntity.ok(BlogUpvoteResponse(blog = null, message = result.message))
             is BlogLikeError ->

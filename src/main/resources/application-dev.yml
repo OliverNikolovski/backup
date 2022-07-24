@@ -3,3 +3,6 @@ spring:
     locations:
       - classpath:db/migration
       - classpath:db/migration-dev
+  sql:
+    init:
+      mode: always
