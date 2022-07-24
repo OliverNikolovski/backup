@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/bookmarks")
 class BookmarkController(val blogService: BlogService) {
 
-    @GetMapping("{userId}")
-    fun getBookmarksForUser(@PathVariable userId: Long): ResponseEntity<List<Blog>> =
-        ResponseEntity.ok(blogService.getBookmarksForUser(userId))
+    @GetMapping
+    fun getBookmarksForUser(): ResponseEntity<List<Blog>> =
+        ResponseEntity.ok(blogService.getBookmarksForLoggedInUser())
 
     @PostMapping("/save/{blogId}")
-    fun saveOrRemoveBookmarkForUser(@PathVariable blogId: Long, @RequestBody userId: Long): ResponseEntity<BookmarkResponse> {
-        return when (val result = blogService.createBookmarkForUser(userId, blogId)) {
+    fun saveOrRemoveBookmarkForUser(@PathVariable blogId: Long): ResponseEntity<BookmarkResponse> {
+        return when (val result = blogService.createBookmarkForLoggedInUser(blogId)) {
             is BookmarkCreated -> ResponseEntity.ok(BookmarkResponse(result.message))
             is BookmarkRemoved -> ResponseEntity.ok(BookmarkResponse(result.message))
             is BookmarkError -> ResponseEntity.internalServerError().build()

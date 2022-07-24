@@ -1,9 +1,7 @@
 package com.sorsix.blogitbackend.api.controller
 
-import com.sorsix.blogitbackend.api.requestobjects.BlogDeleteRequest
 import com.sorsix.blogitbackend.api.requestobjects.BlogSaveRequest
 import com.sorsix.blogitbackend.api.requestobjects.BlogUpdateRequest
-import com.sorsix.blogitbackend.api.requestobjects.UpvoteRequest
 import com.sorsix.blogitbackend.api.responseobjects.BlogDeleteResponse
 import com.sorsix.blogitbackend.api.responseobjects.BlogUpdateResponse
 import com.sorsix.blogitbackend.api.responseobjects.BlogUpvoteResponse
@@ -37,7 +35,7 @@ class BlogController(val blogService: BlogService) {
 
     @PostMapping("/add")
     fun saveBlog(@RequestBody request: BlogSaveRequest): ResponseEntity<BlogDto> {
-        return when (val result = blogService.save(request.title, request.content, request.userId)) {
+        return when (val result = blogService.save(request.title, request.content)) {
             is BlogCreated -> ResponseEntity.ok(result.blogDto)
             is BlogCreateError -> ResponseEntity.internalServerError().build()
         }
@@ -45,7 +43,7 @@ class BlogController(val blogService: BlogService) {
 
     @PutMapping("/update/{id}")
     fun updateBlog(@PathVariable(name = "id") blogId: Long, @RequestBody request: BlogUpdateRequest): ResponseEntity<BlogUpdateResponse> {
-        return when (val result = blogService.update(request.title, request.content, blogId, request.userId)) {
+        return when (val result = blogService.update(request.title, request.content, blogId)) {
             is BlogUpdated -> ResponseEntity.ok(BlogUpdateResponse(result.blogDto, "success"))
             is BlogUpdatePermissionDenied ->
                 ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -56,9 +54,9 @@ class BlogController(val blogService: BlogService) {
         }
     }
 
-    @DeleteMapping("/delete")
-    fun deleteBlog(@RequestBody request: BlogDeleteRequest): ResponseEntity<BlogDeleteResponse> {
-        return when (val result = blogService.delete(request.blogId, request.userId)) {
+    @DeleteMapping("/delete/{id}")
+    fun deleteBlog(@PathVariable(name = "id") blogId: Long): ResponseEntity<BlogDeleteResponse> {
+        return when (val result = blogService.delete(blogId)) {
             is BlogDeleted -> ResponseEntity.ok(BlogDeleteResponse(blog = result.blogDto, message = "success"))
             is BlogDeletePermissionDenied ->
                 ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -69,9 +67,9 @@ class BlogController(val blogService: BlogService) {
         }
     }
 
-    @PostMapping("/upvote")
-    fun upvoteBlog(@RequestBody request: UpvoteRequest): ResponseEntity<BlogUpvoteResponse> {
-        return when (val result = blogService.like(request.userId, request.blogId)) {
+    @PostMapping("/upvote/{id}")
+    fun upvoteBlog(@PathVariable(name = "id") blogId: Long): ResponseEntity<BlogUpvoteResponse> {
+        return when (val result = blogService.like(blogId)) {
             is BlogLiked -> ResponseEntity.ok(BlogUpvoteResponse(blog = result.blogDto, message = "success"))
             is BlogUnliked -> ResponseEntity.ok(BlogUpvoteResponse(blog = null, message = result.message))
             is BlogLikeError ->

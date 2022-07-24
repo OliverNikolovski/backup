@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/users")
 class UserController(val blogService: BlogService) {
 
-    @GetMapping("/{id}/blogs")
-    fun getBlogsByUser(@PathVariable id: Long): ResponseEntity<List<Blog>> =
-        ResponseEntity.ok(blogService.getBlogsByUser(id))
+    @GetMapping("/blogs")
+    fun getBlogsByUser(): ResponseEntity<List<Blog>> =
+        ResponseEntity.ok(blogService.getBlogsByLoggedInUser())
 
 }
