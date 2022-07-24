@@ -1,6 +1,6 @@
 package com.sorsix.blogitbackend.api.controller
 
-import com.sorsix.blogitbackend.api.requestresponseobjects.BookmarkResponse
+import com.sorsix.blogitbackend.api.responseobjects.BookmarkResponse
 import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.results.bookmark.BookmarkCreated
 import com.sorsix.blogitbackend.model.results.bookmark.BookmarkError

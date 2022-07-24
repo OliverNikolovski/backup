@@ -1,6 +1,12 @@
 package com.sorsix.blogitbackend.api.controller
 
-import com.sorsix.blogitbackend.api.requestresponseobjects.*
+import com.sorsix.blogitbackend.api.requestobjects.BlogDeleteRequest
+import com.sorsix.blogitbackend.api.requestobjects.BlogSaveRequest
+import com.sorsix.blogitbackend.api.requestobjects.BlogUpdateRequest
+import com.sorsix.blogitbackend.api.requestobjects.UpvoteRequest
+import com.sorsix.blogitbackend.api.responseobjects.BlogDeleteResponse
+import com.sorsix.blogitbackend.api.responseobjects.BlogUpdateResponse
+import com.sorsix.blogitbackend.api.responseobjects.BlogUpvoteResponse
 import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.dto.BlogDto
 import com.sorsix.blogitbackend.model.enumeration.Tag

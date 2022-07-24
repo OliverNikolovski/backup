@@ -1,4 +1,4 @@
-package com.sorsix.blogitbackend.api.requestresponseobjects
+package com.sorsix.blogitbackend.api.requestobjects
 
 data class UpvoteRequest(
     val userId: Long,

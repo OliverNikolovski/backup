@@ -5,4 +5,4 @@ spring:
       - classpath:db/migration-dev
   sql:
     init:
-      mode: always
+      mode: never
