@@ -11,37 +11,37 @@ import javax.persistence.*
 data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long,
 
-    @Column(unique = true, length = 50, nullable = false, name = "username")
+    @Column(unique = true, length = 50, nullable = false)
     private val username: String,
 
-    @Column(nullable = false, name = "password")
+    @Column(nullable = false)
     private val password: String,
 
     @Column
-    val email: String?,
+    val email: String? = null,
 
     @Column(name = "short_bio")
-    val shortBio: String?,
+    val shortBio: String? = null,
 
     @Column(name = "profile_picture")
-    val profilePicture: ByteArray?,
+    val profilePicture: ByteArray? = null,
 
     @Enumerated(EnumType.STRING)
     val role: Role = Role.ROLE_USER,
 
     @Column(name = "is_account_non_expired")
-    val isAccountNonExpired1: Boolean = true,
+    private val isAccountNonExpired: Boolean = true,
 
     @Column(name = "is_account_non_locked")
-    val isAccountNonLocked1: Boolean = true,
+    private val isAccountNonLocked: Boolean = true,
 
     @Column(name = "is_credentials_non_expired")
-    val isCredentialsNonExpired1: Boolean = true,
+    private val isCredentialsNonExpired: Boolean = true,
 
     @Column(name = "is_enabled")
-    val isEnabled1: Boolean = true
+    private val isEnabled: Boolean = true
 ) : UserDetails {
 
 
@@ -73,19 +73,19 @@ data class User(
     }
 
     override fun isAccountNonExpired(): Boolean {
-        return isAccountNonExpired1
+        return isAccountNonExpired
     }
 
     override fun isAccountNonLocked(): Boolean {
-        return isAccountNonLocked1
+        return isAccountNonLocked
     }
 
     override fun isCredentialsNonExpired(): Boolean {
-        return isCredentialsNonExpired1
+        return isCredentialsNonExpired
     }
 
     override fun isEnabled(): Boolean {
-        return isEnabled1
+        return isEnabled
     }
 }
 

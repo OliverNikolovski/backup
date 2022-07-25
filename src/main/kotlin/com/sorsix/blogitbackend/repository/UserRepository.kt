@@ -15,13 +15,16 @@ interface UserRepository : JpaRepository<User, Long> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("insert into follows values(?1, ?2)", nativeQuery = true)
-    fun follow(followerId: Long, followedId: Long)
+    fun follow(followerId: Long, followedId: Long): Int
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from follows where follower_id = ?1 and followed_id = ?2", nativeQuery = true)
     fun unfollow(followerId: Long, followedId: Long)
 
-    @Query(value = "select exists(select 1 from follows where follower_id = ?1 and followed_id = ?2)", nativeQuery = true)
+    @Query(
+        value = "select exists(select 1 from follows where follower_id = ?1 and followed_id = ?2)",
+        nativeQuery = true
+    )
     fun followExists(followerId: Long, followedId: Long): Boolean
 
     @Query("select follower_id from follows where followed_id = ?1", nativeQuery = true)
