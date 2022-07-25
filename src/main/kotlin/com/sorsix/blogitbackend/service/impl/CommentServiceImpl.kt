@@ -3,12 +3,12 @@ package com.sorsix.blogitbackend.service.impl
 import com.sorsix.blogitbackend.model.Comment
 import com.sorsix.blogitbackend.model.results.comment.*
 import com.sorsix.blogitbackend.model.results.comment.BlogNotExisting
-import com.sorsix.blogitbackend.model.results.comment.UserNotExisting
 import com.sorsix.blogitbackend.repository.BlogRepository
 import com.sorsix.blogitbackend.repository.CommentRepository
 import com.sorsix.blogitbackend.repository.UserRepository
 import com.sorsix.blogitbackend.service.CommentService
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 import javax.transaction.Transactional
@@ -20,16 +20,17 @@ class CommentServiceImpl(
     val blogRepository: BlogRepository,
 ) : CommentService {
 
-    override fun findAll(): List<Comment> = commentRepository.findAll()
+    override fun findAll(blog_id: Long): List<Comment> = commentRepository.findAll()
 
     @Transactional
-    override fun like(comment_id: Long, user_id: Long): CommentLikedResult {
-        if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
+    override fun like(comment_id: Long): CommentLikedResult {
+        val username: String = SecurityContextHolder.getContext().authentication.principal as String
+        val user = userRepository.findByUsername(username)
 
         val comment = commentRepository.findByIdOrNull(comment_id)
 
         return comment?.let {
-            if (commentRepository.isLikedByUser(comment_id, user_id)) {
+            if (commentRepository.isLikedByUser(comment_id, user!!.id)) {
                 val changedRecords = commentRepository.unlike(comment_id)
                 return if (changedRecords > 0) CommentUnliked("Comment successfully unliked.")
                 else CommentLikeError("Error liking comment.")
@@ -38,7 +39,7 @@ class CommentServiceImpl(
             val isSuccessful = commentRepository.like(comment.id)
 
             if (isSuccessful == 1) {
-                commentRepository.markCommentAsLikedByUser(comment_id, user_id)
+                commentRepository.markCommentAsLikedByUser(comment_id, user.id)
                 return CommentLiked(comment)
             } else {
                 CommentLikeError("Error upvoting comment")
@@ -46,9 +47,10 @@ class CommentServiceImpl(
         } ?: CommentNotExisting("Comment with id $comment_id does not exist")
     }
 
-    override fun save(content: String, user_id: Long, blog_id: Long): CommentSaveResult {
+    override fun save(content: String, blog_id: Long): CommentSaveResult {
 
-        if (!userRepository.existsById(user_id)) return UserNotExisting("User with id $user_id does not exist")
+        val username: String = SecurityContextHolder.getContext().authentication.principal as String
+        val user = userRepository.findByUsername(username)
 
         if (!blogRepository.existsById(blog_id)) return BlogNotExisting("Blog with id $blog_id does not exist")
 
@@ -57,7 +59,7 @@ class CommentServiceImpl(
             content = content,
             dateCreated = ZonedDateTime.now(),
             numberOfLikes = 0,
-            user_id = user_id,
+            user_id = user!!.id,
             blog_id = blog_id
         )
 
@@ -70,14 +72,15 @@ class CommentServiceImpl(
     }
 
     @Transactional
-    override fun update(user_id: Long, comment_id: Long, content: String): CommentUpdateResult {
+    override fun update(comment_id: Long, content: String): CommentUpdateResult {
+
+        val username: String = SecurityContextHolder.getContext().authentication.principal as String
+        val user = userRepository.findByUsername(username)
 
         val comment = commentRepository.findByIdOrNull(comment_id)
             ?: return CommentNotExisting("Comment with id $comment_id does not exist")
-        val user =
-            userRepository.findByIdOrNull(user_id) ?: return UserNotExisting("User with id $user_id does not exist")
 
-        if (user.id != comment.user_id) return UsersNotMatch("Permission denied to edit the comment")
+        if (user!!.id != comment.user_id) return UsersNotMatch("Permission denied to edit the comment")
 
         commentRepository.deleteById(comment_id)
 
@@ -98,11 +101,17 @@ class CommentServiceImpl(
 
     }
 
-    override fun delete(comment_id: Long, user_id: Long): CommentDeleteResult {
-        val comment = commentRepository.findByIdOrNull(comment_id) ?: return CommentNotExisting("Comment does not exist.")
-        val user = userRepository.findByIdOrNull(user_id) ?: return UserNotExisting("User does not exist.")
-        if (comment.user_id != user.id) return CommentDeletePermissionDenied("Permission denied.")
+    override fun delete(comment_id: Long): CommentDeleteResult {
+        val comment =
+            commentRepository.findByIdOrNull(comment_id) ?: return CommentNotExisting("Comment does not exist.")
+
+        val username: String = SecurityContextHolder.getContext().authentication.principal as String
+        val user = userRepository.findByUsername(username)
+
+        if (comment.user_id != user!!.id) return CommentDeletePermissionDenied("Permission denied.")
+
         commentRepository.delete(comment)
+
         commentRepository.findByIdOrNull(comment.id)?.let {
             return CommentDeleteError("Comment delete error.")
         } ?: return CommentDeleted(comment)
