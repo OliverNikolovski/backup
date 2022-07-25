@@ -23,6 +23,8 @@ data class Blog(
     @Column(name = "estimated_read_time")
     val estimatedReadTime: Int,
 
+    val picture: ByteArray? = null,
+
     val user_id: Long?
 )
 

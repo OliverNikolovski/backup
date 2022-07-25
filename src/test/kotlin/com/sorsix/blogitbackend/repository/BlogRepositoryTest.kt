@@ -33,8 +33,10 @@ class BlogRepositoryTest : AbstractTest() {
 
     @Test
     fun `test save blog`() {
-        val blog = Blog(id = 0, title = "Test title", content = "Test content", dateCreated = ZonedDateTime.now(),
-        numberOfLikes = 0, estimatedReadTime = 0, 1)
+        val blog = Blog(
+            id = 0, title = "Test title", content = "Test content", dateCreated = ZonedDateTime.now(),
+            numberOfLikes = 0, estimatedReadTime = 0, user_id = 1
+        )
         blogRepository.save(blog)
         assertEquals(1, blogRepository.findAll().size)
         assertEquals("Test title", blogRepository.findAll()[0].title)
@@ -45,8 +47,10 @@ class BlogRepositoryTest : AbstractTest() {
 
     @Test
     fun `test update blog`() {
-        val blog = Blog(id = 0, title = "Test title", content = "Test content", dateCreated = ZonedDateTime.now(),
-            numberOfLikes = 0, estimatedReadTime = 0, 1)
+        val blog = Blog(
+            id = 0, title = "Test title", content = "Test content", dateCreated = ZonedDateTime.now(),
+            numberOfLikes = 0, estimatedReadTime = 0, user_id = 1
+        )
         val savedBlog = blogRepository.save(blog)
         val numUpdatedRecords = blogRepository.update(id = savedBlog.id, title = "New title", content = "New content")
         val updatedBlog = blogRepository.findByIdOrNull(blog.id)
@@ -59,8 +63,10 @@ class BlogRepositoryTest : AbstractTest() {
 
     @Test
     fun `test upvote blog`() {
-        val blog = Blog(id = 0, title = "Test title", content = "Test content", dateCreated = ZonedDateTime.now(),
-            numberOfLikes = 0, estimatedReadTime = 0, 1)
+        val blog = Blog(
+            id = 0, title = "Test title", content = "Test content", dateCreated = ZonedDateTime.now(),
+            numberOfLikes = 0, estimatedReadTime = 0, user_id = 1
+        )
         val savedBlog = blogRepository.save(blog)
         var affectedRecords = blogRepository.like(savedBlog.id)
         var updatedBlog = blogRepository.findByIdOrNull(savedBlog.id)

@@ -19,7 +19,7 @@ interface UserRepository : JpaRepository<User, Long> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from follows where follower_id = ?1 and followed_id = ?2", nativeQuery = true)
-    fun unfollow(followerId: Long, followedId: Long)
+    fun unfollow(followerId: Long, followedId: Long): Int
 
     @Query(
         value = "select exists(select 1 from follows where follower_id = ?1 and followed_id = ?2)",
