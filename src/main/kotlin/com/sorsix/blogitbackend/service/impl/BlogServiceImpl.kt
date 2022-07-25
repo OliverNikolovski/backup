@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 import javax.transaction.Transactional
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 @Service
 class BlogServiceImpl(
@@ -39,7 +41,7 @@ class BlogServiceImpl(
         val user = userService.findByUsername(username)
         val blog = Blog(
             id = 0, title = title, content = content, dateCreated = ZonedDateTime.now(),
-            numberOfLikes = 0, estimatedReadTime = 0, user_id = user?.id
+            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user?.id
         )
         return try {
             val savedBlog = blogRepository.save(blog)
@@ -48,6 +50,13 @@ class BlogServiceImpl(
         } catch (ex: Exception) {
             BlogCreateError("Error creating blog")
         }
+    }
+
+    private fun estimateReadTime(content: String): Int {
+        val wpm = 225.0
+        val words = content.trim().split("\\s+").size
+
+        return ceil(words / wpm).roundToInt()
     }
 
     @Transactional
@@ -60,8 +69,7 @@ class BlogServiceImpl(
         return if (blogRepository.update(id = blog_id, title = title, content = content) > 0) {
             val tags: List<Tag> = blogRepository.getTagsForBlog(blog.id)
             BlogUpdated(toDto(blog = blogRepository.findById(blog_id).get(), username = username, tags = tags))
-        }
-        else BlogUpdateError("Blog update error.")
+        } else BlogUpdateError("Blog update error.")
     }
 
     @Transactional
@@ -74,8 +82,7 @@ class BlogServiceImpl(
             return if (changedRecords > 0) {
                 blogRepository.unmarkBlogAsLikedByUser(blog_id, user.id)
                 BlogUnliked("Blog successfully unliked.")
-            }
-            else BlogLikeError("Error unliking blog.")
+            } else BlogLikeError("Error unliking blog.")
         }
 
         val changedRecords = blogRepository.like(blog.id)
@@ -83,8 +90,7 @@ class BlogServiceImpl(
             blogRepository.markBlogAsLikedByUser(blog_id, user.id)
             val tags: List<Tag> = blogRepository.getTagsForBlog(blog.id)
             return BlogLiked(toDto(blog = blog, username = username, tags = tags))
-        }
-        else {
+        } else {
             BlogLikeError("Error liking blog.")
         }
     }

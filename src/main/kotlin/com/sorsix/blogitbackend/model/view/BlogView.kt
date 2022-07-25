@@ -1,4 +1,4 @@
-package com.sorsix.blogitbackend.model
+package com.sorsix.blogitbackend.model.view
 
 import com.sorsix.blogitbackend.model.enumeration.Tag
 import java.time.ZonedDateTime
