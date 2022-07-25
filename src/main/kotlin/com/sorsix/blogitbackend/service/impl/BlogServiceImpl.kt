@@ -1,7 +1,6 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Blog
-import com.sorsix.blogitbackend.model.User
 import com.sorsix.blogitbackend.model.dto.BlogDto
 import com.sorsix.blogitbackend.model.enumeration.Tag
 import com.sorsix.blogitbackend.model.exception.BlogNotFoundException
@@ -43,7 +42,9 @@ class BlogServiceImpl(
             numberOfLikes = 0, estimatedReadTime = 0, user_id = user?.id
         )
         return try {
-            BlogCreated(toDto(blogRepository.save(blog)))
+            val savedBlog = blogRepository.save(blog)
+            val tags: List<Tag> = blogRepository.getTagsForBlog(savedBlog.id)
+            BlogCreated(toDto(blog = savedBlog, username = username, tags = tags))
         } catch (ex: Exception) {
             BlogCreateError("Error creating blog")
         }
@@ -56,8 +57,10 @@ class BlogServiceImpl(
         val user = userService.findByUsername(username)
         if (blog.user_id != user?.id)
             return BlogUpdatePermissionDenied("Permission denied to edit the blog")
-        return if (blogRepository.update(id = blog_id, title = title, content = content) > 0)
-            BlogUpdated(toDto(blogRepository.findById(blog_id).get()))
+        return if (blogRepository.update(id = blog_id, title = title, content = content) > 0) {
+            val tags: List<Tag> = blogRepository.getTagsForBlog(blog.id)
+            BlogUpdated(toDto(blog = blogRepository.findById(blog_id).get(), username = username, tags = tags))
+        }
         else BlogUpdateError("Blog update error.")
     }
 
@@ -66,7 +69,7 @@ class BlogServiceImpl(
         val blog = findByIdOrThrow(blog_id)
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
-        if (blogRepository.isBlogLikedByUser(blog_id, user.id!!)) {
+        if (blogRepository.isBlogLikedByUser(blog_id, user.id)) {
             val changedRecords = blogRepository.unlike(blog_id)
             return if (changedRecords > 0) {
                 blogRepository.unmarkBlogAsLikedByUser(blog_id, user.id)
@@ -78,7 +81,8 @@ class BlogServiceImpl(
         val changedRecords = blogRepository.like(blog.id)
         return if (changedRecords > 0) {
             blogRepository.markBlogAsLikedByUser(blog_id, user.id)
-            return BlogLiked(toDto(blog))
+            val tags: List<Tag> = blogRepository.getTagsForBlog(blog.id)
+            return BlogLiked(toDto(blog = blog, username = username, tags = tags))
         }
         else {
             BlogLikeError("Error liking blog.")
@@ -89,17 +93,18 @@ class BlogServiceImpl(
         val blog = findByIdOrThrow(blog_id)
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
+        val tags: List<Tag> = blogRepository.getTagsForBlog(blog.id)
         if (blog.user_id != user.id) return BlogDeletePermissionDenied("Permission denied.")
         blogRepository.delete(blog)
         blogRepository.findByIdOrNull(blog_id)?.let {
             return BlogDeleteError("Blog delete error.")
-        } ?: return BlogDeleted(toDto(blog))
+        } ?: return BlogDeleted(toDto(blog = blog, username = username, tags = tags))
     }
 
     override fun getBookmarksForLoggedInUser(): List<Blog> {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
-        val bookmarkIds: List<Long> = blogRepository.getBookmarksForUser(user.id!!)
+        val bookmarkIds: List<Long> = blogRepository.getBookmarksForUser(user.id)
         return blogRepository.findAllById(bookmarkIds)
     }
 
@@ -108,7 +113,7 @@ class BlogServiceImpl(
         findByIdOrThrow(blogId)
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
-        if (blogRepository.isBlogBookmarkedByUser(user.id!!, blogId)) {
+        if (blogRepository.isBlogBookmarkedByUser(user.id, blogId)) {
             return if (blogRepository.deleteBookmarkForUser(user.id, blogId) > 0) BookmarkRemoved("Bookmark removed.")
             else BookmarkError("Bookmark error.")
         }
@@ -133,15 +138,16 @@ class BlogServiceImpl(
     override fun getBlogsByLoggedInUser(): List<Blog> {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
-        val blogIds = blogRepository.findBlogsByUser(user.id!!)
+        val blogIds = blogRepository.findBlogsByUser(user.id)
         return blogRepository.findAllById(blogIds)
     }
 
-    private fun toDto(blog: Blog): BlogDto {
+    private fun toDto(blog: Blog, username: String, tags: List<Tag>): BlogDto {
         return BlogDto(
             title = blog.title, content = blog.content, dateCreated = blog.dateCreated,
             estimatedReadTime = blog.estimatedReadTime,
-            numberOfLikes = blog.numberOfLikes
+            numberOfLikes = blog.numberOfLikes, username = username,
+            tags = tags
         )
     }
 }

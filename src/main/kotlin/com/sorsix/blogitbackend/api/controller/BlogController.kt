@@ -19,6 +19,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/api/blogs")
+@CrossOrigin(origins = ["http://localhost:4200/"])
 class BlogController(val blogService: BlogService) {
 
     @GetMapping("/all")

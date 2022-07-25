@@ -1,14 +1,14 @@
-package com.sorsix.blogitbackend.model.dto
+package com.sorsix.blogitbackend.model
 
 import com.sorsix.blogitbackend.model.enumeration.Tag
 import java.time.ZonedDateTime
 
-data class BlogDto(
+data class BlogView(
     val title: String,
     val content: String,
     val dateCreated: ZonedDateTime,
-    val estimatedReadTime: Int,
     val numberOfLikes: Int,
+    val estimatedReadTime: Int,
     val username: String,
     val tags: List<Tag>
 )

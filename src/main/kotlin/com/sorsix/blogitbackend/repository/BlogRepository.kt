@@ -1,6 +1,7 @@
 package com.sorsix.blogitbackend.repository
 
 import com.sorsix.blogitbackend.model.Blog
+import com.sorsix.blogitbackend.model.enumeration.Tag
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -62,4 +63,7 @@ interface BlogRepository: JpaRepository<Blog, Long> {
 
     @Query("select id from blog where user_id = ?1", nativeQuery = true)
     fun findBlogsByUser(userId: Long): List<Long>
+
+    @Query("select tag from tags where blog_id = ?1", nativeQuery = true)
+    fun getTagsForBlog(blogId: Long): List<Tag>
 }
