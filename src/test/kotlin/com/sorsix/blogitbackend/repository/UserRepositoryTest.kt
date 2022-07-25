@@ -1,6 +1,5 @@
 package com.sorsix.blogitbackend.repository
 
-import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.User
 import com.sorsix.blogitbackend.model.enumeration.Role
 import org.junit.jupiter.api.AfterEach
@@ -8,19 +7,15 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import java.time.ZonedDateTime
 
 class UserRepositoryTest : AbstractTest() {
     @Autowired
     lateinit var userRepository: UserRepository
 
-    @Autowired
-    lateinit var blogRepository: BlogRepository
-
     @AfterEach
     fun cleanup() {
         jdbcTempate.execute("truncate table users cascade ")
-        jdbcTempate.execute("truncate table bookmarks cascade ")
+        jdbcTempate.execute("truncate table follows cascade ")
     }
 
     @Test
@@ -65,6 +60,19 @@ class UserRepositoryTest : AbstractTest() {
         val isUserFollowed = userRepository.follow(follower.id, followed.id)
 
         assertEquals(1, isUserFollowed)
+    }
+
+    @Test
+    fun `testing unfollow`() {
+        val follower = userRepository.save(User(0, "john.doe", "pass", "email", "shortBio", role = Role.ROLE_USER))
+        val followed = userRepository.save(User(0, "john.doe1", "pass", "email1", "shortBio", role = Role.ROLE_USER))
+
+        val isUserFollowed = userRepository.follow(follower.id, followed.id)
+
+        val unfollow = userRepository.unfollow(follower.id, followed.id)
+
+        assertEquals(1, isUserFollowed)
+        assertEquals(1, unfollow)
     }
 
     @Test

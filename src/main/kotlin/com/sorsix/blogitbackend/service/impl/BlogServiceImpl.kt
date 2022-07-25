@@ -122,14 +122,6 @@ class BlogServiceImpl(
         else BookmarkError("Bookmark error.")
     }
 
-//    @Transactional
-//    override fun deleteBookmarkForUser(userId: Long, blogId: Long): BookmarkResult {
-//        userService.findByIdOrThrow(userId)
-//        findByIdOrThrow(blogId)
-//        return if (blogRepository.deleteBookmarkForUser(userId, blogId) > 0) BookmarkRemoved("Bookmark removed.")
-//        else BookmarkError("Bookmark error.")
-//    }
-
     override fun getBlogsByTag(tag: Tag): List<Blog> {
         val blogIds = blogRepository.findBlogsByTags(tag.name)
         return blogRepository.findAllById(blogIds)
