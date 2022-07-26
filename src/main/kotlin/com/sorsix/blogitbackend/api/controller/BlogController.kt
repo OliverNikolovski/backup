@@ -23,14 +23,14 @@ import java.util.*
 class BlogController(val blogService: BlogService) {
 
     @GetMapping("/all")
-    fun getAllBlogs(@RequestParam(required = false) tag: String?): ResponseEntity<List<Blog>> {
+    fun getAllBlogs(@RequestParam(required = false) tag: String?): ResponseEntity<List<BlogDto>> {
         return tag?.let {
             ResponseEntity.ok(blogService.getBlogsByTag(Tag.valueOf(tag.uppercase(Locale.getDefault()))))
         } ?: ResponseEntity.ok(blogService.findAll())
     }
 
     @GetMapping
-    fun getBlogs(pageable: Pageable): ResponseEntity<Page<Blog>> {
+    fun getBlogs(pageable: Pageable): ResponseEntity<Page<BlogDto>> {
         return ResponseEntity.ok(blogService.findAllWithPagination(pageable))
     }
 

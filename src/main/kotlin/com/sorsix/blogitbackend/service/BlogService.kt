@@ -1,6 +1,7 @@
 package com.sorsix.blogitbackend.service
 
 import com.sorsix.blogitbackend.model.Blog
+import com.sorsix.blogitbackend.model.dto.BlogDto
 import com.sorsix.blogitbackend.model.enumeration.Tag
 import com.sorsix.blogitbackend.model.results.blog.BlogCreateResult
 import com.sorsix.blogitbackend.model.results.blog.BlogDeleteResult
@@ -12,9 +13,9 @@ import org.springframework.data.domain.Pageable
 
 interface BlogService {
 
-    fun findAll(): List<Blog>
+    fun findAll(): List<BlogDto>
 
-    fun findAllWithPagination(pageable: Pageable): Page<Blog>
+    fun findAllWithPagination(pageable: Pageable): Page<BlogDto>
 
     fun findByIdOrThrow(id: Long): Blog
 
@@ -26,13 +27,13 @@ interface BlogService {
 
     fun delete(blog_id: Long): BlogDeleteResult
 
-    fun getBookmarksForLoggedInUser(): List<Blog>
+    fun getBookmarksForLoggedInUser(): List<BlogDto>
 
     fun createBookmarkForLoggedInUser(blogId: Long): BookmarkResult
 
     //fun deleteBookmarkForUser(userId: Long, blogId: Long): BookmarkResult
 
-    fun getBlogsByTag(tag: Tag): List<Blog>
+    fun getBlogsByTag(tag: Tag): List<BlogDto>
 
-    fun getBlogsByLoggedInUser(): List<Blog>
+    fun getBlogsByLoggedInUser(): List<BlogDto>
 }
