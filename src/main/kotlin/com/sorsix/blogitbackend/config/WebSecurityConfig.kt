@@ -19,7 +19,7 @@ class WebSecurityConfig(val authConfig: AuthenticationConfiguration) {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         val customAuthenticationFilter: CustomAuthenticationFilter = CustomAuthenticationFilter(authConfig.authenticationManager)
         customAuthenticationFilter.setFilterProcessesUrl("/api/login")
-        return http.csrf().disable()
+        return http.cors().and().csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
