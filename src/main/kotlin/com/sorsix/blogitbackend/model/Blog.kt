@@ -25,6 +25,6 @@ data class Blog(
 
     val picture: ByteArray? = null,
 
-    val user_id: Long?
+    val user_id: Long
 )
 

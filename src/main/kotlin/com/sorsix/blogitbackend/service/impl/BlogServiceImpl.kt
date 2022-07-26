@@ -25,12 +25,20 @@ class BlogServiceImpl(
     private val userService: UserService,
 ) : BlogService {
 
-    override fun findAll(): List<Blog> {
-        return blogRepository.findAll()
+    override fun findAll(): List<BlogDto> {
+        return blogRepository.findAll().map { blog ->
+            val username = userService.findByIdOrThrow(blog.user_id).username
+            val tags = blogRepository.getTagsForBlog(blog.id)
+            toDto(blog = blog, username = username, tags = tags)
+        }
     }
 
-    override fun findAllWithPagination(pageable: Pageable): Page<Blog> =
-        blogRepository.findAll(pageable)
+    override fun findAllWithPagination(pageable: Pageable): Page<BlogDto> =
+        blogRepository.findAll(pageable).map { blog ->
+            val username = userService.findByIdOrThrow(blog.user_id).username
+            val tags = blogRepository.getTagsForBlog(blog.id)
+            toDto(blog = blog, username = username, tags = tags)
+        }
 
     override fun findByIdOrThrow(id: Long): Blog {
         return blogRepository.findByIdOrNull(id) ?: throw BlogNotFoundException("Blog with id: $id does not exist")
@@ -38,10 +46,10 @@ class BlogServiceImpl(
 
     override fun save(title: String, content: String): BlogCreateResult {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
-        val user = userService.findByUsername(username)
+        val user = userService.findByUsername(username)!!
         val blog = Blog(
             id = 0, title = title, content = content, dateCreated = ZonedDateTime.now(),
-            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user?.id
+            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user.id
         )
         return try {
             val savedBlog = blogRepository.save(blog)
@@ -107,11 +115,15 @@ class BlogServiceImpl(
         } ?: return BlogDeleted(toDto(blog = blog, username = username, tags = tags))
     }
 
-    override fun getBookmarksForLoggedInUser(): List<Blog> {
+    override fun getBookmarksForLoggedInUser(): List<BlogDto> {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
         val bookmarkIds: List<Long> = blogRepository.getBookmarksForUser(user.id)
-        return blogRepository.findAllById(bookmarkIds)
+        return blogRepository.findAllById(bookmarkIds).map { blog ->
+            val u = userService.findByIdOrThrow(blog.user_id).username
+            val tags = blogRepository.getTagsForBlog(blog.id)
+            toDto(blog = blog, username = u, tags = tags)
+        }
     }
 
     @Transactional
@@ -128,16 +140,24 @@ class BlogServiceImpl(
         else BookmarkError("Bookmark error.")
     }
 
-    override fun getBlogsByTag(tag: Tag): List<Blog> {
+    override fun getBlogsByTag(tag: Tag): List<BlogDto> {
         val blogIds = blogRepository.findBlogsByTags(tag.name)
-        return blogRepository.findAllById(blogIds)
+        return blogRepository.findAllById(blogIds).map { blog ->
+            val username = userService.findByIdOrThrow(blog.user_id).username
+            val tags = blogRepository.getTagsForBlog(blog.id)
+            toDto(blog = blog, username = username, tags = tags)
+        }
     }
 
-    override fun getBlogsByLoggedInUser(): List<Blog> {
+    override fun getBlogsByLoggedInUser(): List<BlogDto> {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
         val blogIds = blogRepository.findBlogsByUser(user.id)
-        return blogRepository.findAllById(blogIds)
+        return blogRepository.findAllById(blogIds).map { blog ->
+            val u = userService.findByIdOrThrow(blog.user_id).username
+            val tags = blogRepository.getTagsForBlog(blog.id)
+            toDto(blog = blog, username = u, tags = tags)
+        }
     }
 
     private fun toDto(blog: Blog, username: String, tags: List<Tag>): BlogDto {
