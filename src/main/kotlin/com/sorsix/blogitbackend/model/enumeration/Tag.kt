@@ -4,5 +4,6 @@ enum class Tag {
     SPORT,
     POLITICS,
     ENTERTAINMENT,
-    NEWS
+    NEWS,
+    OTHER
 }
