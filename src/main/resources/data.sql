@@ -1,4 +1,4 @@
-INSERT INTO blog(title, content, date_created, estimated_read_time, user_id)
+    INSERT INTO blog(title, content, date_created, estimated_read_time, user_id)
 VALUES ('Title 1', 'Content 1', '2016-06-22 19:10:25-07', 5, 1),
        ('Title 2', 'Content 2', '2013-06-22 19:10:25-07', 2, 2),
        ('Title 3', 'Content 3', '2015-06-22 19:10:25-07', 9, 3),
