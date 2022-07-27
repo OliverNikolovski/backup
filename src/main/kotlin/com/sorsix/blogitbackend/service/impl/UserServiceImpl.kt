@@ -36,8 +36,7 @@ class UserServiceImpl(
         repeatedPassword: String,
         email: String?,
         shortBio: String?,
-        profilePicture: InputStream?,
-        role: Role?
+        profilePicture: ByteArray?,
     ): UserRegisterResult {
 
         if (username.isEmpty() || containsWhiteSpace(username))
@@ -52,22 +51,21 @@ class UserServiceImpl(
         if (userRepository.existsByUsername(username))
             return UsernameTaken("Username $username taken.")
 
-//        val profilePicture = ByteArrayOutputStream()
-//        profilePictureStream.use { input ->
-//            profilePicture.use { output ->
-//                input.copyTo(output)
-//            }
-//        }
-
         val user = User(
             id = 0,
             username = username,
             password = passwordEncoder.encode(password),
             email = email,
             shortBio = shortBio,
-            profilePicture = null
+            profilePicture = profilePicture,
+            role = Role.ROLE_USER
         )
-
+        try {
+            val savedUser = this.userRepository.save(user)
+        }
+        catch (ex: Exception) {
+            return U
+        }
         return UserRegistered(userRepository.save(user))
     }
 

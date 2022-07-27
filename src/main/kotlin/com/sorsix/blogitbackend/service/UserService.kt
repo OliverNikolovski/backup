@@ -16,13 +16,13 @@ interface UserService: UserDetailsService {
 
     fun existsByUsername(username: String): Boolean
 
-    fun register(
+    fun register: (
         username: String,
         password: String,
         repeatedPassword: String,
         email: String?,
         shortBio: String?,
-        profilePicture: InputStream?,
+        profilePicture: ByteArray?,
         role: Role?
     ): UserRegisterResult
 
