@@ -16,14 +16,13 @@ interface UserService: UserDetailsService {
 
     fun existsByUsername(username: String): Boolean
 
-    fun register: (
+    fun register(
         username: String,
         password: String,
         repeatedPassword: String,
         email: String?,
         shortBio: String?,
-        profilePicture: ByteArray?,
-        role: Role?
+        profilePicture: ByteArray?
     ): UserRegisterResult
 
     fun followOrUnfollow(followerId: Long, followedId: Long): FollowResult

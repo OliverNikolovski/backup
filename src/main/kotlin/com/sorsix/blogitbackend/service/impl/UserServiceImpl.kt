@@ -4,6 +4,7 @@ import com.sorsix.blogitbackend.model.enumeration.Role
 import com.sorsix.blogitbackend.repository.UserRepository
 import com.sorsix.blogitbackend.service.UserService
 import com.sorsix.blogitbackend.model.User
+import com.sorsix.blogitbackend.model.dto.UserDto
 import com.sorsix.blogitbackend.model.exception.UserNotFoundException
 import com.sorsix.blogitbackend.model.results.follow.FollowResult
 import com.sorsix.blogitbackend.model.results.follow.Followed
@@ -60,13 +61,12 @@ class UserServiceImpl(
             profilePicture = profilePicture,
             role = Role.ROLE_USER
         )
-        try {
+        return try {
             val savedUser = this.userRepository.save(user)
+            UserRegistered(toDto(user))
+        } catch (ex: Exception) {
+            UsernameRegistrationError("There was an error. Please try again.")
         }
-        catch (ex: Exception) {
-            return U
-        }
-        return UserRegistered(userRepository.save(user))
     }
 
     @Transactional
@@ -101,4 +101,14 @@ class UserServiceImpl(
         userRepository.findByUsername(username) ?: throw UsernameNotFoundException("Username does not exist.")
 
     private fun containsWhiteSpace(str: String) = str.matches(Regex(""".*\s+.*"""))
+
+    private fun toDto(user: User): UserDto {
+        return UserDto(
+            username = user.username,
+            email = user.email,
+            shortBio = user.shortBio,
+            profilePicture = user.profilePicture,
+            role = user.role
+        )
+    }
 }
