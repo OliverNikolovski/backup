@@ -1,6 +1,7 @@
 package com.sorsix.blogitbackend.service
 
 import com.sorsix.blogitbackend.model.User
+import com.sorsix.blogitbackend.model.dto.UserDto
 import com.sorsix.blogitbackend.model.enumeration.Role
 import com.sorsix.blogitbackend.model.results.follow.FollowResult
 import com.sorsix.blogitbackend.model.results.user.UserRegisterResult
@@ -12,7 +13,7 @@ interface UserService: UserDetailsService {
 
     fun findByIdOrThrow(id: Long): User
 
-    fun findByUsername(username: String): User?
+    fun findByUsername(username: String): UserDto?
 
     fun existsByUsername(username: String): Boolean
 

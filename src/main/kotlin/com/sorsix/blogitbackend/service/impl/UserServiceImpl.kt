@@ -27,7 +27,12 @@ class UserServiceImpl(
     override fun findByIdOrThrow(id: Long) =
         userRepository.findByIdOrNull(id) ?: throw UserNotFoundException("User with id $id does not exist.")
 
-    override fun findByUsername(username: String) = userRepository.findByUsername(username)
+    override fun findByUsername(username: String): UserDto? {
+        val user = userRepository.findByUsername(username)
+        if (user != null)
+            return toDto(user)
+        return null
+    }
 
     override fun existsByUsername(username: String) = userRepository.existsByUsername(username)
 

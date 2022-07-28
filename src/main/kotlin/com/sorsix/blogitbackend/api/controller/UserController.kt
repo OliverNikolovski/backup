@@ -2,6 +2,7 @@ package com.sorsix.blogitbackend.api.controller
 
 import com.sorsix.blogitbackend.api.responseobjects.UserRegisterResponse
 import com.sorsix.blogitbackend.model.dto.BlogDto
+import com.sorsix.blogitbackend.model.dto.UserDto
 import com.sorsix.blogitbackend.model.results.user.*
 import com.sorsix.blogitbackend.service.BlogService
 import com.sorsix.blogitbackend.service.UserService
@@ -22,6 +23,13 @@ class UserController(val blogService: BlogService,
     @GetMapping("/blogs")
     fun getBlogsByUser(): ResponseEntity<List<BlogDto>> =
         ResponseEntity.ok(blogService.getBlogsByLoggedInUser())
+
+    @GetMapping("/{username}")
+    fun getUserByUsername(@PathVariable username: String): ResponseEntity<UserDto?> {
+        val user = this.userService.findByUsername(username)
+        return if (user != null) ResponseEntity.ok(user)
+        else ResponseEntity.notFound().build()
+    }
 
     @PostMapping("/register")
     fun register(@RequestParam username: String, @RequestParam password: String,
