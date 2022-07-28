@@ -23,7 +23,7 @@ class WebSecurityConfig(val authConfig: AuthenticationConfiguration) {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            .antMatchers("/api/login", "/api/users/register", "/api/blogs", "/api/blogs/all").permitAll()
+            .antMatchers("/api/login", "/api/users/**", "/api/blogs", "/api/blogs/all").permitAll()
             .anyRequest()
             .authenticated()
             .and()

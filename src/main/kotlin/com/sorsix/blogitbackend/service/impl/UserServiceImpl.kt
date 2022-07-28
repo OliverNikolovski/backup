@@ -12,11 +12,9 @@ import com.sorsix.blogitbackend.model.results.follow.Unfollowed
 import com.sorsix.blogitbackend.model.results.user.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.io.InputStream
 import javax.transaction.Transactional
 
 @Service
@@ -27,12 +25,11 @@ class UserServiceImpl(
     override fun findByIdOrThrow(id: Long) =
         userRepository.findByIdOrNull(id) ?: throw UserNotFoundException("User with id $id does not exist.")
 
-    override fun findByUsername(username: String): UserDto? {
-        val user = userRepository.findByUsername(username)
-        if (user != null)
-            return toDto(user)
-        return null
-    }
+    override fun findByUsername(username: String): User? = userRepository.findByUsername(username)
+
+
+    override fun getUserDtoByUsername(username: String): UserDto? =
+        this.findByUsername(username)?.let { toDto(it) }
 
     override fun existsByUsername(username: String) = userRepository.existsByUsername(username)
 
@@ -68,7 +65,7 @@ class UserServiceImpl(
         )
         return try {
             val savedUser = this.userRepository.save(user)
-            UserRegistered(toDto(user))
+            UserRegistered(toDto(savedUser))
         } catch (ex: Exception) {
             UsernameRegistrationError("There was an error. Please try again.")
         }

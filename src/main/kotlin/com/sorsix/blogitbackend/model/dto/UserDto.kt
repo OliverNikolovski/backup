@@ -7,7 +7,7 @@ import javax.persistence.Enumerated
 
 data class UserDto(
 
-    private val username: String,
+    val username: String,
 
     val email: String?,
 

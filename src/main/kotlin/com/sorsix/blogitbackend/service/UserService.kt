@@ -13,7 +13,9 @@ interface UserService: UserDetailsService {
 
     fun findByIdOrThrow(id: Long): User
 
-    fun findByUsername(username: String): UserDto?
+    fun findByUsername(username: String): User?
+
+    fun getUserDtoByUsername(username: String): UserDto?
 
     fun existsByUsername(username: String): Boolean
 

@@ -20,16 +20,17 @@ import org.springframework.web.multipart.MultipartFile
 class UserController(val blogService: BlogService,
                     val userService: UserService) {
 
-    @GetMapping("/blogs")
-    fun getBlogsByUser(): ResponseEntity<List<BlogDto>> =
-        ResponseEntity.ok(blogService.getBlogsByLoggedInUser())
-
     @GetMapping("/{username}")
     fun getUserByUsername(@PathVariable username: String): ResponseEntity<UserDto?> {
-        val user = this.userService.findByUsername(username)
-        return if (user != null) ResponseEntity.ok(user)
-        else ResponseEntity.notFound().build()
+        val res = this.userService.getUserDtoByUsername(username)?.let { ResponseEntity.ok(it) }
+            ?: ResponseEntity.notFound().build()
+        return res
     }
+
+    @GetMapping("/{username}/blogs")
+    fun getBlogsByUser(@PathVariable username: String): ResponseEntity<List<BlogDto>> =
+        ResponseEntity.ok(blogService.getBlogsByUser(username))
+
 
     @PostMapping("/register")
     fun register(@RequestParam username: String, @RequestParam password: String,

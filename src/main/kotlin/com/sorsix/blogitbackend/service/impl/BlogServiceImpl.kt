@@ -160,6 +160,14 @@ class BlogServiceImpl(
         }
     }
 
+    override fun getBlogsByUser(username: String): List<BlogDto> {
+        val blogIds = this.blogRepository.findBlogsByUserWithUsername(username)
+        return this.blogRepository.findAllById(blogIds).map { blog ->
+            val tags = blogRepository.getTagsForBlog(blog.id)
+            toDto(blog = blog, username = username, tags = tags)
+        }
+    }
+
     private fun toDto(blog: Blog, username: String, tags: List<Tag>): BlogDto {
         return BlogDto(
             title = blog.title, content = blog.content, dateCreated = blog.dateCreated,

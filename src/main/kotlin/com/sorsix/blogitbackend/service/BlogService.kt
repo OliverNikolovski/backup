@@ -36,4 +36,6 @@ interface BlogService {
     fun getBlogsByTag(tag: Tag): List<BlogDto>
 
     fun getBlogsByLoggedInUser(): List<BlogDto>
+
+    fun getBlogsByUser(username: String): List<BlogDto>
 }

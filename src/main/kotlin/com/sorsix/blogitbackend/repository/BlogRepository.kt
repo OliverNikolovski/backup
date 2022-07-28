@@ -64,6 +64,9 @@ interface BlogRepository: JpaRepository<Blog, Long> {
     @Query("select id from blog where user_id = ?1", nativeQuery = true)
     fun findBlogsByUser(userId: Long): List<Long>
 
+    @Query("select b.id from blog b join users u on b.user_id = u.id where u.username = ?1", nativeQuery = true)
+    fun findBlogsByUserWithUsername(username: String): List<Long>
+
     @Query("select tag from tags where blog_id = ?1", nativeQuery = true)
     fun getTagsForBlog(blogId: Long): List<Tag>
 }
