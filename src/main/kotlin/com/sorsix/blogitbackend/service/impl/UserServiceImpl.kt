@@ -4,6 +4,7 @@ import com.sorsix.blogitbackend.model.enumeration.Role
 import com.sorsix.blogitbackend.repository.UserRepository
 import com.sorsix.blogitbackend.service.UserService
 import com.sorsix.blogitbackend.model.User
+import com.sorsix.blogitbackend.model.dto.UserDto
 import com.sorsix.blogitbackend.model.exception.UserNotFoundException
 import com.sorsix.blogitbackend.model.results.follow.FollowResult
 import com.sorsix.blogitbackend.model.results.follow.Followed
@@ -36,8 +37,7 @@ class UserServiceImpl(
         repeatedPassword: String,
         email: String?,
         shortBio: String?,
-        profilePicture: InputStream?,
-        role: Role?
+        profilePicture: ByteArray?,
     ): UserRegisterResult {
 
         if (username.isEmpty() || containsWhiteSpace(username))
@@ -52,23 +52,21 @@ class UserServiceImpl(
         if (userRepository.existsByUsername(username))
             return UsernameTaken("Username $username taken.")
 
-//        val profilePicture = ByteArrayOutputStream()
-//        profilePictureStream.use { input ->
-//            profilePicture.use { output ->
-//                input.copyTo(output)
-//            }
-//        }
-
         val user = User(
             id = 0,
             username = username,
             password = passwordEncoder.encode(password),
             email = email,
             shortBio = shortBio,
-            profilePicture = null
+            profilePicture = profilePicture,
+            role = Role.ROLE_USER
         )
-
-        return UserRegistered(userRepository.save(user))
+        return try {
+            val savedUser = this.userRepository.save(user)
+            UserRegistered(toDto(user))
+        } catch (ex: Exception) {
+            UsernameRegistrationError("There was an error. Please try again.")
+        }
     }
 
     @Transactional
@@ -103,4 +101,14 @@ class UserServiceImpl(
         userRepository.findByUsername(username) ?: throw UsernameNotFoundException("Username does not exist.")
 
     private fun containsWhiteSpace(str: String) = str.matches(Regex(""".*\s+.*"""))
+
+    private fun toDto(user: User): UserDto {
+        return UserDto(
+            username = user.username,
+            email = user.email,
+            shortBio = user.shortBio,
+            profilePicture = user.profilePicture,
+            role = user.role
+        )
+    }
 }

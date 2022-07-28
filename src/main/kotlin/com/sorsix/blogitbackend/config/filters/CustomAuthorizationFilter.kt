@@ -28,7 +28,7 @@ class CustomAuthorizationFilter : OncePerRequestFilter() {
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        if (request.servletPath.equals("/api/login") || request.servletPath.equals("/api/register")) {
+        if (request.servletPath.equals("/api/login") || request.servletPath.equals("/api/users/register")) {
             filterChain.doFilter(request, response)
         } else {
             val authorizationHeader: String? = request.getHeader(HttpHeaders.AUTHORIZATION)
