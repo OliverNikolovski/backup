@@ -26,9 +26,8 @@ class UserController(val blogService: BlogService,
 
     @GetMapping("/{username}")
     fun getUserByUsername(@PathVariable username: String): ResponseEntity<UserDto?> {
-        val res = this.userService.getUserDtoByUsername(username)?.let { ResponseEntity.ok(it) }
+        return this.userService.getUserDtoByUsername(username)?.let { ResponseEntity.ok(it) }
             ?: ResponseEntity.notFound().build()
-        return res
     }
 
     @GetMapping("/{username}/blogs")
