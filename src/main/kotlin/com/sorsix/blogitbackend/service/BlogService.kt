@@ -17,6 +17,8 @@ interface BlogService {
 
     fun findAllWithPagination(pageable: Pageable): Page<BlogDto>
 
+    fun findById(id: Long): BlogDto?
+
     fun findByIdOrThrow(id: Long): Blog
 
     fun save(title: String, content: String): BlogCreateResult

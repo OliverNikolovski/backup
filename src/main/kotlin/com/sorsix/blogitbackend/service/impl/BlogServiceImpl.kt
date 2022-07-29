@@ -40,6 +40,14 @@ class BlogServiceImpl(
             toDto(blog = blog, username = username, tags = tags)
         }
 
+    override fun findById(id: Long): BlogDto? {
+        return this.blogRepository.findByIdOrNull(id)?.let {
+            val username = userService.findByIdOrThrow(it.user_id).username
+            val tags: List<Tag> = blogRepository.getTagsForBlog(it.id)
+            toDto(blog = it, username = username, tags = tags)
+        }
+    }
+
     override fun findByIdOrThrow(id: Long): Blog {
         return blogRepository.findByIdOrNull(id) ?: throw BlogNotFoundException("Blog with id: $id does not exist")
     }
@@ -92,7 +100,6 @@ class BlogServiceImpl(
                 BlogUnliked("Blog successfully unliked.")
             } else BlogLikeError("Error unliking blog.")
         }
-
         val changedRecords = blogRepository.like(blog.id)
         return if (changedRecords > 0) {
             blogRepository.markBlogAsLikedByUser(blog_id, user.id)

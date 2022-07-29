@@ -34,6 +34,12 @@ class BlogController(val blogService: BlogService) {
         return ResponseEntity.ok(blogService.findAllWithPagination(pageable))
     }
 
+    @GetMapping("/{id}")
+    fun getBlogById(@PathVariable id: Long): ResponseEntity<BlogDto> =
+        this.blogService.findById(id)?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.notFound().build()
+
     @PostMapping("/add")
     fun saveBlog(@RequestBody request: BlogSaveRequest): ResponseEntity<BlogDto> {
         return when (val result = blogService.save(request.title, request.content)) {
