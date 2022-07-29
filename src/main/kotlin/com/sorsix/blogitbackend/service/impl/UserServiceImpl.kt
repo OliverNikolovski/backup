@@ -40,6 +40,7 @@ class UserServiceImpl(
         email: String?,
         shortBio: String?,
         profilePicture: ByteArray?,
+        profilePictureFormat: String?
     ): UserRegisterResult {
 
         if (username.isEmpty() || containsWhiteSpace(username))
@@ -61,6 +62,7 @@ class UserServiceImpl(
             email = email,
             shortBio = shortBio,
             profilePicture = profilePicture,
+            profilePictureFormat = profilePictureFormat,
             role = Role.ROLE_USER
         )
         return try {
@@ -110,6 +112,7 @@ class UserServiceImpl(
             email = user.email,
             shortBio = user.shortBio,
             profilePicture = user.profilePicture,
+            profilePictureFormat = user.profilePictureFormat,
             role = user.role
         )
     }

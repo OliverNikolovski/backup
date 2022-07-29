@@ -15,6 +15,8 @@ data class UserDto(
 
     val profilePicture: ByteArray?,
 
+    val profilePictureFormat: String?,
+
     val role: Role = Role.ROLE_USER,
 
 )

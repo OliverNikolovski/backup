@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.io.BufferedInputStream
+import java.io.FileInputStream
+import java.io.InputStream
+import java.net.URLConnection
 
 @RestController
 @RequestMapping("/api/users")
@@ -43,7 +47,8 @@ class UserController(val blogService: BlogService,
             repeatedPassword = repeatedPassword,
             email = email,
             shortBio = shortBio,
-            profilePicture = profilePicture?.bytes
+            profilePicture = profilePicture?.bytes,
+            profilePictureFormat = profilePicture?.contentType
         )
         return when(result) {
             is UserRegistered -> ResponseEntity.ok(UserRegisterResponse(result.user, "success"))

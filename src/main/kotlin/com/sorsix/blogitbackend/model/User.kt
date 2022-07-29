@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
 import javax.persistence.*
+import kotlin.jvm.Transient
 
 @Entity
 @Table(name = "users")
@@ -27,6 +28,9 @@ data class User(
 
     @Column(name = "profile_picture")
     val profilePicture: ByteArray? = null,
+
+    @Transient
+    val profilePictureFormat: String?,
 
     @Enumerated(EnumType.STRING)
     val role: Role = Role.ROLE_USER,
