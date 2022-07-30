@@ -41,22 +41,11 @@ class BlogController(val blogService: BlogService) {
         } ?: ResponseEntity.notFound().build()
 
     @PostMapping("/add")
-<<<<<<< HEAD
-    fun saveBlog(
-        @RequestParam title: String,
-        @RequestParam content: String,
-        @RequestParam(required = false) picture: MultipartFile?,
-        @RequestParam(required = false) tags: List<String>
-    ): ResponseEntity<BlogDto> {
-        val x = 1
-        return when (val result = blogService.save(title, content, picture?.bytes, tags)) {
-=======
     fun saveBlog(@RequestParam title: String,
                  @RequestParam content: String,
-                 @RequestParam tags: List<Tag>,
+                 @RequestParam tags: List<String>,
                  @RequestParam(required = false) picture: MultipartFile?): ResponseEntity<BlogDto> {
-        return when (val result = blogService.save(title, content, tags, picture?.bytes, picture?.contentType)) {
->>>>>>> 62831604cb7cc46db3f5789ea21fc2c363673026
+        return when (val result = blogService.save(title, content, tags, picture)) {
             is BlogCreated -> ResponseEntity.ok(result.blogDto)
             is BlogCreateError -> ResponseEntity.internalServerError().build()
         }

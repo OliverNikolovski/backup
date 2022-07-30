@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 import java.time.ZonedDateTime
 import javax.transaction.Transactional
 import kotlin.math.ceil
@@ -53,27 +54,21 @@ class BlogServiceImpl(
     }
 
     @Transactional
-    override fun save(title: String, content: String, tags: List<Tag>, picture: ByteArray?, pictureFormat: String?): BlogCreateResult {
+    override fun save(title: String, content: String, tags: List<String>, picture: MultipartFile?): BlogCreateResult {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
         val blog = Blog(
             id = 0, title = title, content = content, dateCreated = ZonedDateTime.now(),
             numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user.id,
-            picture = picture, pictureFormat = pictureFormat
+            picture = picture?.bytes, pictureFormat = picture?.contentType
         )
 
-        //val transformedTags = transformTags(tags)
-
-        tags.forEach {
-            run {
-                this.blogRepository.saveTagsForBlog(blog.id, it)
-            }
-        }
+       val transformed = transformTags(tags)
 
         return try {
             val savedBlog = blogRepository.save(blog)
-            tags.forEach { this.blogRepository.saveTagForBlog(savedBlog.id, it.name) }
-            BlogCreated(toDto(blog = savedBlog, username = username, tags = tags))
+            transformed.forEach { this.blogRepository.saveTagForBlog(savedBlog.id, it.name) }
+            BlogCreated(toDto(blog = savedBlog, username = username, tags = transformed))
         } catch (ex: Exception) {
             BlogCreateError("Error creating blog")
         }
@@ -91,6 +86,19 @@ class BlogServiceImpl(
 
         return saveTags
     }
+
+//    private fun transformTags (tags: List<String>): List<Tag> {
+//        val saveTags : MutableList<Tag> = arrayListOf()
+//
+//        for(item in tags) {
+//            var tag = item.replace("\"", "")
+//            tag = tag.replace("[", "")
+//            tag = tag.replace("]", "")
+//            saveTags.add(Tag.valueOf(tag))
+//        }
+//
+//        return saveTags
+//    }
 
     private fun estimateReadTime(content: String): Int {
         val wpm = 225.0

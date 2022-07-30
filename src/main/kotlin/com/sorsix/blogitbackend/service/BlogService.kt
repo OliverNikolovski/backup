@@ -10,6 +10,7 @@ import com.sorsix.blogitbackend.model.results.blog.BlogUpdateResult
 import com.sorsix.blogitbackend.model.results.bookmark.BookmarkResult
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.web.multipart.MultipartFile
 
 interface BlogService {
 
@@ -21,7 +22,7 @@ interface BlogService {
 
     fun findByIdOrThrow(id: Long): Blog
 
-    fun save(title: String, content: String, tags: List<Tag>, picture: ByteArray?, pictureFormat: String?): BlogCreateResult
+    fun save(title: String, content: String, tags: List<String>, picture: MultipartFile?): BlogCreateResult
 
     fun update(title: String, content: String, blog_id: Long): BlogUpdateResult
 
