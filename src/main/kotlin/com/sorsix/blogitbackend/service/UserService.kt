@@ -25,7 +25,8 @@ interface UserService: UserDetailsService {
         repeatedPassword: String,
         email: String?,
         shortBio: String?,
-        profilePicture: ByteArray?
+        profilePicture: ByteArray?,
+        profilePictureFormat: String?
     ): UserRegisterResult
 
     fun followOrUnfollow(followerId: Long, followedId: Long): FollowResult
@@ -33,5 +34,7 @@ interface UserService: UserDetailsService {
     fun getFollowersForUser(userId: Long): List<User>
 
     fun getFollowingForUser(userId: Long): List<User>
+
+    fun getBlogPoster(blogId: Long): UserDto?
 
 }

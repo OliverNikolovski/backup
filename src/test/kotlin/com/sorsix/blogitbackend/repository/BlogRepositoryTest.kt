@@ -167,4 +167,17 @@ class BlogRepositoryTest : AbstractTest() {
         assertEquals(0, blogRepository.getBookmarksForUser(4).size)
     }
 
+    @Test
+    fun `test save tag for blog`() {
+        jdbcTempate.execute("""
+            |insert into blog(id, title, content, date_created, estimated_read_time, user_id) 
+            |values (1, 'Blog 1 title', 'Blog 1 content', '2016-06-22 19:10:25-07', 5, 1)""".trimMargin())
+        blogRepository.saveTagForBlog(1, "NEWS")
+        blogRepository.saveTagForBlog(1, "SPORT")
+        blogRepository.saveTagForBlog(1, "POLITICS")
+        val tags = blogRepository.getTagsForBlog(1)
+        println("tags:$tags")
+        assertArrayEquals(arrayOf(Tag.NEWS, Tag.SPORT, Tag.POLITICS), tags.toTypedArray())
+    }
+
 }

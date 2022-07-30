@@ -40,6 +40,7 @@ class UserServiceImpl(
         email: String?,
         shortBio: String?,
         profilePicture: ByteArray?,
+        profilePictureFormat: String?
     ): UserRegisterResult {
 
         if (username.isEmpty() || containsWhiteSpace(username))
@@ -61,6 +62,7 @@ class UserServiceImpl(
             email = email,
             shortBio = shortBio,
             profilePicture = profilePicture,
+            profilePictureFormat = profilePictureFormat,
             role = Role.ROLE_USER
         )
         return try {
@@ -99,6 +101,12 @@ class UserServiceImpl(
         return userRepository.findAllById(followingIds)
     }
 
+    override fun getBlogPoster(blogId: Long): UserDto? {
+        return this.userRepository.getBlogPoster(blogId)?.let {
+            toDto(this.userRepository.findByIdOrNull(it)!!)
+        }
+    }
+
     override fun loadUserByUsername(username: String): UserDetails =
         userRepository.findByUsername(username) ?: throw UsernameNotFoundException("Username does not exist.")
 
@@ -110,6 +118,7 @@ class UserServiceImpl(
             email = user.email,
             shortBio = user.shortBio,
             profilePicture = user.profilePicture,
+            profilePictureFormat = user.profilePictureFormat,
             role = user.role
         )
     }

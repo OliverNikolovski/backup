@@ -33,4 +33,7 @@ interface UserRepository : JpaRepository<User, Long> {
     @Query("select followed_id from follows where follower_id = ?1", nativeQuery = true)
     fun getFollowingForUser(userId: Long): List<Long>
 
+    @Query("select b.user_id from Blog b where b.id = :blogId")
+    fun getBlogPoster(blogId: Long): Long?
+
 }

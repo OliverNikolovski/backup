@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.io.BufferedInputStream
+import java.io.FileInputStream
+import java.io.InputStream
+import java.net.URLConnection
 
 @RestController
 @RequestMapping("/api/users")
@@ -31,6 +35,20 @@ class UserController(val blogService: BlogService,
         ResponseEntity.ok(blogService.getBlogsByUser(username))
 
 
+    @GetMapping("/{username}/picture")
+    fun getUserProfilePicture(@PathVariable username: String): ResponseEntity<ByteArray> {
+        return this.userService.getUserDtoByUsername(username)?.let {
+            ResponseEntity.ok(it.profilePicture)
+        } ?: ResponseEntity.notFound().build()
+    }
+
+    @GetMapping("/blog/{blogId}")
+    fun getBlogPoster(@PathVariable blogId: Long): ResponseEntity<UserDto> {
+        return this.userService.getBlogPoster(blogId)?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.notFound().build()
+    }
+
     @PostMapping("/register")
     fun register(@RequestParam username: String, @RequestParam password: String,
                  @RequestParam repeatedPassword: String, @RequestParam(required = false) email: String?,
@@ -42,7 +60,8 @@ class UserController(val blogService: BlogService,
             repeatedPassword = repeatedPassword,
             email = email,
             shortBio = shortBio,
-            profilePicture = profilePicture?.bytes
+            profilePicture = profilePicture?.bytes,
+            profilePictureFormat = profilePicture?.contentType
         )
         return when(result) {
             is UserRegistered -> ResponseEntity.ok(UserRegisterResponse(result.user, "success"))

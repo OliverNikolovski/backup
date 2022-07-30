@@ -40,21 +40,31 @@ class BlogServiceImpl(
             toDto(blog = blog, username = username, tags = tags)
         }
 
+    override fun findById(id: Long): BlogDto? {
+        return this.blogRepository.findByIdOrNull(id)?.let {
+            val username = userService.findByIdOrThrow(it.user_id).username
+            val tags: List<Tag> = blogRepository.getTagsForBlog(it.id)
+            toDto(blog = it, username = username, tags = tags)
+        }
+    }
+
     override fun findByIdOrThrow(id: Long): Blog {
         return blogRepository.findByIdOrNull(id) ?: throw BlogNotFoundException("Blog with id: $id does not exist")
     }
 
-    override fun save(title: String, content: String, picture: ByteArray?, tags: List<String>): BlogCreateResult {
+    @Transactional
+    override fun save(title: String, content: String, tags: List<Tag>, picture: ByteArray?, pictureFormat: String?): BlogCreateResult {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
         val blog = Blog(
             id = 0, title = title, content = content, dateCreated = ZonedDateTime.now(),
-            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), picture = picture, user_id = user.id
+            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user.id,
+            picture = picture, pictureFormat = pictureFormat
         )
 
-        val transformedTags = transformTags(tags)
+        //val transformedTags = transformTags(tags)
 
-        transformedTags.forEach {
+        tags.forEach {
             run {
                 this.blogRepository.saveTagsForBlog(blog.id, it)
             }
@@ -62,8 +72,8 @@ class BlogServiceImpl(
 
         return try {
             val savedBlog = blogRepository.save(blog)
-            val tagsSave: List<Tag> = transformedTags
-            BlogCreated(toDto(blog = savedBlog, username = username, tags = tagsSave))
+            tags.forEach { this.blogRepository.saveTagForBlog(savedBlog.id, it.name) }
+            BlogCreated(toDto(blog = savedBlog, username = username, tags = tags))
         } catch (ex: Exception) {
             BlogCreateError("Error creating blog")
         }
@@ -114,7 +124,6 @@ class BlogServiceImpl(
                 BlogUnliked("Blog successfully unliked.")
             } else BlogLikeError("Error unliking blog.")
         }
-
         val changedRecords = blogRepository.like(blog.id)
         return if (changedRecords > 0) {
             blogRepository.markBlogAsLikedByUser(blog_id, user.id)
@@ -192,10 +201,16 @@ class BlogServiceImpl(
 
     private fun toDto(blog: Blog, username: String, tags: List<Tag>): BlogDto {
         return BlogDto(
-            title = blog.title, content = blog.content, dateCreated = blog.dateCreated,
+            id = blog.id,
+            title = blog.title,
+            content = blog.content,
+            dateCreated = blog.dateCreated,
             estimatedReadTime = blog.estimatedReadTime,
-            numberOfLikes = blog.numberOfLikes, username = username,
-            tags = tags
+            numberOfLikes = blog.numberOfLikes,
+            username = username,
+            tags = tags,
+            picture = blog.picture,
+            pictureFormat = blog.pictureFormat
         )
     }
 }

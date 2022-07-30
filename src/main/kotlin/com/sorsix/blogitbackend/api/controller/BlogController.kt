@@ -1,6 +1,5 @@
 package com.sorsix.blogitbackend.api.controller
 
-import com.sorsix.blogitbackend.api.requestobjects.BlogSaveRequest
 import com.sorsix.blogitbackend.api.requestobjects.BlogUpdateRequest
 import com.sorsix.blogitbackend.api.responseobjects.BlogDeleteResponse
 import com.sorsix.blogitbackend.api.responseobjects.BlogUpdateResponse
@@ -13,6 +12,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
@@ -34,7 +34,14 @@ class BlogController(val blogService: BlogService) {
         return ResponseEntity.ok(blogService.findAllWithPagination(pageable))
     }
 
+    @GetMapping("/{id}")
+    fun getBlogById(@PathVariable id: Long): ResponseEntity<BlogDto> =
+        this.blogService.findById(id)?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.notFound().build()
+
     @PostMapping("/add")
+<<<<<<< HEAD
     fun saveBlog(
         @RequestParam title: String,
         @RequestParam content: String,
@@ -43,6 +50,13 @@ class BlogController(val blogService: BlogService) {
     ): ResponseEntity<BlogDto> {
         val x = 1
         return when (val result = blogService.save(title, content, picture?.bytes, tags)) {
+=======
+    fun saveBlog(@RequestParam title: String,
+                 @RequestParam content: String,
+                 @RequestParam tags: List<Tag>,
+                 @RequestParam(required = false) picture: MultipartFile?): ResponseEntity<BlogDto> {
+        return when (val result = blogService.save(title, content, tags, picture?.bytes, picture?.contentType)) {
+>>>>>>> 62831604cb7cc46db3f5789ea21fc2c363673026
             is BlogCreated -> ResponseEntity.ok(result.blogDto)
             is BlogCreateError -> ResponseEntity.internalServerError().build()
         }

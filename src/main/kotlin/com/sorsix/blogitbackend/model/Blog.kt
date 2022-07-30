@@ -25,6 +25,9 @@ data class Blog(
 
     val picture: ByteArray? = null,
 
+    @Transient
+    val pictureFormat: String? = null,
+
     val user_id: Long
 )
 
