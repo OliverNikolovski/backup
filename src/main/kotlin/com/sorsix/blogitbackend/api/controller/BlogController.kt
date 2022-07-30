@@ -24,9 +24,13 @@ class BlogController(val blogService: BlogService) {
 
     @GetMapping("/all")
     fun getAllBlogs(@RequestParam(required = false) tag: String?): ResponseEntity<List<BlogDto>> {
-        return tag?.let {
+//        return tag?.let {
+//            ResponseEntity.ok(blogService.getBlogsByTag(Tag.valueOf(tag.uppercase(Locale.getDefault()))))
+//        } ?: ResponseEntity.ok(blogService.findAll())
+        val res = tag?.let {
             ResponseEntity.ok(blogService.getBlogsByTag(Tag.valueOf(tag.uppercase(Locale.getDefault()))))
         } ?: ResponseEntity.ok(blogService.findAll())
+        return res;
     }
 
     @GetMapping
