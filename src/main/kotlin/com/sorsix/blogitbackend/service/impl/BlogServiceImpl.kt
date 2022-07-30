@@ -52,16 +52,18 @@ class BlogServiceImpl(
         return blogRepository.findByIdOrNull(id) ?: throw BlogNotFoundException("Blog with id: $id does not exist")
     }
 
-    override fun save(title: String, content: String): BlogCreateResult {
+    @Transactional
+    override fun save(title: String, content: String, tags: List<Tag>, picture: ByteArray?, pictureFormat: String?): BlogCreateResult {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
         val blog = Blog(
             id = 0, title = title, content = content, dateCreated = ZonedDateTime.now(),
-            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user.id
+            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user.id,
+            picture = picture, pictureFormat = pictureFormat
         )
         return try {
             val savedBlog = blogRepository.save(blog)
-            val tags: List<Tag> = blogRepository.getTagsForBlog(savedBlog.id)
+            tags.forEach { this.blogRepository.saveTagForBlog(savedBlog.id, it.name) }
             BlogCreated(toDto(blog = savedBlog, username = username, tags = tags))
         } catch (ex: Exception) {
             BlogCreateError("Error creating blog")
@@ -177,10 +179,16 @@ class BlogServiceImpl(
 
     private fun toDto(blog: Blog, username: String, tags: List<Tag>): BlogDto {
         return BlogDto(
-            title = blog.title, content = blog.content, dateCreated = blog.dateCreated,
+            id = blog.id,
+            title = blog.title,
+            content = blog.content,
+            dateCreated = blog.dateCreated,
             estimatedReadTime = blog.estimatedReadTime,
-            numberOfLikes = blog.numberOfLikes, username = username,
-            tags = tags
+            numberOfLikes = blog.numberOfLikes,
+            username = username,
+            tags = tags,
+            picture = blog.picture,
+            pictureFormat = blog.pictureFormat
         )
     }
 }

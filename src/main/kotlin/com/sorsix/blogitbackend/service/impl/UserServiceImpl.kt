@@ -101,6 +101,12 @@ class UserServiceImpl(
         return userRepository.findAllById(followingIds)
     }
 
+    override fun getBlogPoster(blogId: Long): UserDto? {
+        return this.userRepository.getBlogPoster(blogId)?.let {
+            toDto(this.userRepository.findByIdOrNull(it)!!)
+        }
+    }
+
     override fun loadUserByUsername(username: String): UserDetails =
         userRepository.findByUsername(username) ?: throw UsernameNotFoundException("Username does not exist.")
 

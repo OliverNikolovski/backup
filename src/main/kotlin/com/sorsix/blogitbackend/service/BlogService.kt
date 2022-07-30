@@ -21,7 +21,7 @@ interface BlogService {
 
     fun findByIdOrThrow(id: Long): Blog
 
-    fun save(title: String, content: String): BlogCreateResult
+    fun save(title: String, content: String, tags: List<Tag>, picture: ByteArray?, pictureFormat: String?): BlogCreateResult
 
     fun update(title: String, content: String, blog_id: Long): BlogUpdateResult
 

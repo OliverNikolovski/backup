@@ -35,4 +35,6 @@ interface UserService: UserDetailsService {
 
     fun getFollowingForUser(userId: Long): List<User>
 
+    fun getBlogPoster(blogId: Long): UserDto?
+
 }

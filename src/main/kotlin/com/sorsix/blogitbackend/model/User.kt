@@ -30,7 +30,7 @@ data class User(
     val profilePicture: ByteArray? = null,
 
     @Transient
-    val profilePictureFormat: String?,
+    val profilePictureFormat: String? = null,
 
     @Enumerated(EnumType.STRING)
     val role: Role = Role.ROLE_USER,

@@ -1,11 +1,9 @@
 package com.sorsix.blogitbackend.api.controller
 
-import com.sorsix.blogitbackend.api.requestobjects.BlogSaveRequest
 import com.sorsix.blogitbackend.api.requestobjects.BlogUpdateRequest
 import com.sorsix.blogitbackend.api.responseobjects.BlogDeleteResponse
 import com.sorsix.blogitbackend.api.responseobjects.BlogUpdateResponse
 import com.sorsix.blogitbackend.api.responseobjects.BlogUpvoteResponse
-import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.dto.BlogDto
 import com.sorsix.blogitbackend.model.enumeration.Tag
 import com.sorsix.blogitbackend.model.results.blog.*
@@ -14,7 +12,9 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 @RestController
@@ -41,8 +41,11 @@ class BlogController(val blogService: BlogService) {
         } ?: ResponseEntity.notFound().build()
 
     @PostMapping("/add")
-    fun saveBlog(@RequestBody request: BlogSaveRequest): ResponseEntity<BlogDto> {
-        return when (val result = blogService.save(request.title, request.content)) {
+    fun saveBlog(@RequestParam title: String,
+                 @RequestParam content: String,
+                 @RequestParam tags: List<Tag>,
+                 @RequestParam(required = false) picture: MultipartFile?): ResponseEntity<BlogDto> {
+        return when (val result = blogService.save(title, content, tags, picture?.bytes, picture?.contentType)) {
             is BlogCreated -> ResponseEntity.ok(result.blogDto)
             is BlogCreateError -> ResponseEntity.internalServerError().build()
         }

@@ -35,6 +35,20 @@ class UserController(val blogService: BlogService,
         ResponseEntity.ok(blogService.getBlogsByUser(username))
 
 
+    @GetMapping("/{username}/picture")
+    fun getUserProfilePicture(@PathVariable username: String): ResponseEntity<ByteArray> {
+        return this.userService.getUserDtoByUsername(username)?.let {
+            ResponseEntity.ok(it.profilePicture)
+        } ?: ResponseEntity.notFound().build()
+    }
+
+    @GetMapping("/blog/{blogId}")
+    fun getBlogPoster(@PathVariable blogId: Long): ResponseEntity<UserDto> {
+        return this.userService.getBlogPoster(blogId)?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.notFound().build()
+    }
+
     @PostMapping("/register")
     fun register(@RequestParam username: String, @RequestParam password: String,
                  @RequestParam repeatedPassword: String, @RequestParam(required = false) email: String?,
