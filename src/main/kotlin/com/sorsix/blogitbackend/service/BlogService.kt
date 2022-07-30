@@ -19,7 +19,7 @@ interface BlogService {
 
     fun findByIdOrThrow(id: Long): Blog
 
-    fun save(title: String, content: String): BlogCreateResult
+    fun save(title: String, content: String, picture: ByteArray?, tags: List<String>): BlogCreateResult
 
     fun update(title: String, content: String, blog_id: Long): BlogUpdateResult
 
@@ -30,8 +30,6 @@ interface BlogService {
     fun getBookmarksForLoggedInUser(): List<BlogDto>
 
     fun createBookmarkForLoggedInUser(blogId: Long): BookmarkResult
-
-    //fun deleteBookmarkForUser(userId: Long, blogId: Long): BookmarkResult
 
     fun getBlogsByTag(tag: Tag): List<BlogDto>
 

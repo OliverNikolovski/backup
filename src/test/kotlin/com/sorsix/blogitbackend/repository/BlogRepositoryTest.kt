@@ -1,6 +1,7 @@
 package com.sorsix.blogitbackend.repository
 
 import com.sorsix.blogitbackend.model.Blog
+import com.sorsix.blogitbackend.model.enumeration.Tag
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 

@@ -5,7 +5,6 @@ import com.sorsix.blogitbackend.api.requestobjects.BlogUpdateRequest
 import com.sorsix.blogitbackend.api.responseobjects.BlogDeleteResponse
 import com.sorsix.blogitbackend.api.responseobjects.BlogUpdateResponse
 import com.sorsix.blogitbackend.api.responseobjects.BlogUpvoteResponse
-import com.sorsix.blogitbackend.model.Blog
 import com.sorsix.blogitbackend.model.dto.BlogDto
 import com.sorsix.blogitbackend.model.enumeration.Tag
 import com.sorsix.blogitbackend.model.results.blog.*
@@ -15,6 +14,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
 @RestController
@@ -35,15 +35,24 @@ class BlogController(val blogService: BlogService) {
     }
 
     @PostMapping("/add")
-    fun saveBlog(@RequestBody request: BlogSaveRequest): ResponseEntity<BlogDto> {
-        return when (val result = blogService.save(request.title, request.content)) {
+    fun saveBlog(
+        @RequestParam title: String,
+        @RequestParam content: String,
+        @RequestParam(required = false) picture: MultipartFile?,
+        @RequestParam(required = false) tags: List<String>
+    ): ResponseEntity<BlogDto> {
+        val x = 1
+        return when (val result = blogService.save(title, content, picture?.bytes, tags)) {
             is BlogCreated -> ResponseEntity.ok(result.blogDto)
             is BlogCreateError -> ResponseEntity.internalServerError().build()
         }
     }
 
     @PutMapping("/update/{id}")
-    fun updateBlog(@PathVariable(name = "id") blogId: Long, @RequestBody request: BlogUpdateRequest): ResponseEntity<BlogUpdateResponse> {
+    fun updateBlog(
+        @PathVariable(name = "id") blogId: Long,
+        @RequestBody request: BlogUpdateRequest
+    ): ResponseEntity<BlogUpdateResponse> {
         return when (val result = blogService.update(request.title, request.content, blogId)) {
             is BlogUpdated -> ResponseEntity.ok(BlogUpdateResponse(result.blogDto, "success"))
             is BlogUpdatePermissionDenied ->

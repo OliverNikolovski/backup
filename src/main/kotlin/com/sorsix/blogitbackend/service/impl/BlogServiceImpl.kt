@@ -44,20 +44,42 @@ class BlogServiceImpl(
         return blogRepository.findByIdOrNull(id) ?: throw BlogNotFoundException("Blog with id: $id does not exist")
     }
 
-    override fun save(title: String, content: String): BlogCreateResult {
+    override fun save(title: String, content: String, picture: ByteArray?, tags: List<String>): BlogCreateResult {
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userService.findByUsername(username)!!
         val blog = Blog(
             id = 0, title = title, content = content, dateCreated = ZonedDateTime.now(),
-            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), user_id = user.id
+            numberOfLikes = 0, estimatedReadTime = estimateReadTime(content), picture = picture, user_id = user.id
         )
+
+        val transformedTags = transformTags(tags)
+
+        transformedTags.forEach {
+            run {
+                this.blogRepository.saveTagsForBlog(blog.id, it)
+            }
+        }
+
         return try {
             val savedBlog = blogRepository.save(blog)
-            val tags: List<Tag> = blogRepository.getTagsForBlog(savedBlog.id)
-            BlogCreated(toDto(blog = savedBlog, username = username, tags = tags))
+            val tagsSave: List<Tag> = transformedTags
+            BlogCreated(toDto(blog = savedBlog, username = username, tags = tagsSave))
         } catch (ex: Exception) {
             BlogCreateError("Error creating blog")
         }
+    }
+
+    private fun transformTags (tags: List<String>): List<Tag> {
+        val saveTags : MutableList<Tag> = arrayListOf()
+
+        for(item in tags) {
+            var tag = item.replace("\"", "")
+            tag = tag.replace("[", "")
+            tag = tag.replace("]", "")
+            saveTags.add(Tag.valueOf(tag))
+        }
+
+        return saveTags
     }
 
     private fun estimateReadTime(content: String): Int {

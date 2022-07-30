@@ -69,4 +69,8 @@ interface BlogRepository: JpaRepository<Blog, Long> {
 
     @Query("select tag from tags where blog_id = ?1", nativeQuery = true)
     fun getTagsForBlog(blogId: Long): List<Tag>
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("insert into tags values(?1, ?2)", nativeQuery = true)
+    fun saveTagsForBlog(blog_id: Long, tag: Tag)
 }
