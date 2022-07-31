@@ -12,6 +12,7 @@ data class BlogDto(
     val numberOfLikes: Int,
     val username: String,
     val tags: List<Tag>,
-    val picture: ByteArray?,
-    val pictureFormat: String?
+    val picture: ByteArray? = null,
+    val pictureFormat: String? = null,
+    val isLikedByCurrentlyLoggedInUser: Boolean? = null
 )

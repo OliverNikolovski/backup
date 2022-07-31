@@ -208,6 +208,24 @@ class BlogServiceImpl(
     }
 
     private fun toDto(blog: Blog, username: String, tags: List<Tag>): BlogDto {
+        val usernameOfLoggedInUser: String = SecurityContextHolder.getContext().authentication?.principal as String
+        val loggedInUser = this.userService.findByUsername(usernameOfLoggedInUser)
+        if (loggedInUser != null) {
+            val isLiked = this.blogRepository.isBlogLikedByUser(blog_id = blog.id, user_id = loggedInUser.id)
+            return BlogDto(
+                id = blog.id,
+                title = blog.title,
+                content = blog.content,
+                dateCreated = blog.dateCreated,
+                estimatedReadTime = blog.estimatedReadTime,
+                numberOfLikes = blog.numberOfLikes,
+                username = username,
+                tags = tags,
+                picture = blog.picture,
+                pictureFormat = blog.pictureFormat,
+                isLikedByCurrentlyLoggedInUser = isLiked
+            )
+        }
         return BlogDto(
             id = blog.id,
             title = blog.title,
@@ -220,5 +238,6 @@ class BlogServiceImpl(
             picture = blog.picture,
             pictureFormat = blog.pictureFormat
         )
+
     }
 }
