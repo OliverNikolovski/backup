@@ -30,4 +30,5 @@ interface CommentRepository : JpaRepository<Comment, Long> {
 
     @Query("select c.id from Comment c where c.blog_id = :blogId")
     fun getCommentsForBlog(blogId: Long): List<Long>
+
 }

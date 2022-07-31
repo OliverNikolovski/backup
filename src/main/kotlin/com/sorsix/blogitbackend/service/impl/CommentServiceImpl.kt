@@ -87,32 +87,29 @@ class CommentServiceImpl(
 
     @Transactional
     override fun update(comment_id: Long, content: String): CommentUpdateResult {
-
         val username: String = SecurityContextHolder.getContext().authentication.principal as String
         val user = userRepository.findByUsername(username)
 
-        val comment = commentRepository.findByIdOrNull(comment_id)
+        val commentFromDb = commentRepository.findByIdOrNull(comment_id)
             ?: return CommentNotExisting("Comment with id $comment_id does not exist")
 
-        if (user!!.id != comment.user_id) return UsersNotMatch("Permission denied to edit the comment")
+        if (user!!.id != commentFromDb.user_id) return UsersNotMatch("Permission denied to edit the comment")
 
-        commentRepository.deleteById(comment_id)
-
-        val c = Comment(
-            id = comment.id,
-            content = comment.content,
-            dateCreated = comment.dateCreated,
-            numberOfLikes = comment.numberOfLikes,
-            user_id = comment.user_id,
-            blog_id = comment.blog_id
+        val comment = Comment(
+            id = comment_id,
+            content = content,
+            dateCreated = commentFromDb.dateCreated,
+            numberOfLikes = commentFromDb.numberOfLikes,
+            user_id = commentFromDb.user_id,
+            blog_id = commentFromDb.blog_id
         )
 
         return try {
-            CommentCreated(toDto(comment, username))
+            val commenter = userRepository.findByIdOrNull(comment.user_id)!!
+            CommentCreated(toDto(commentRepository.save(comment), commenter.username))
         } catch (ex: Exception) {
             CommentCreateError("Error updating comment")
         }
-
     }
 
     override fun delete(comment_id: Long): CommentDeleteResult {
