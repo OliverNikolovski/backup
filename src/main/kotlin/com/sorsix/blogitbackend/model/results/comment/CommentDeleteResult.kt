@@ -1,10 +1,10 @@
 package com.sorsix.blogitbackend.model.results.comment
 
-import com.sorsix.blogitbackend.model.Comment
+import com.sorsix.blogitbackend.model.dto.CommentDto
 
 sealed interface CommentDeleteResult : CommentResult
 
-data class CommentDeleted(val comment: Comment) : CommentDeleteResult {
+data class CommentDeleted(val commentDto: CommentDto) : CommentDeleteResult {
     override fun success() = true
 }
 

@@ -1,11 +1,11 @@
 package com.sorsix.blogitbackend.model.results.comment
 
-import com.sorsix.blogitbackend.model.Comment
+import com.sorsix.blogitbackend.model.dto.CommentDto
 
 sealed interface CommentLikedResult : CommentResult
 
 
-data class CommentLiked(val comment: Comment) : CommentLikedResult {
+data class CommentLiked(val comment: CommentDto) : CommentLikedResult {
     override fun success() = true
 }
 

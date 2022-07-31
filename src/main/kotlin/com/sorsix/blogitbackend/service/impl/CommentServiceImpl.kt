@@ -1,6 +1,7 @@
 package com.sorsix.blogitbackend.service.impl
 
 import com.sorsix.blogitbackend.model.Comment
+import com.sorsix.blogitbackend.model.dto.CommentDto
 import com.sorsix.blogitbackend.model.results.comment.*
 import com.sorsix.blogitbackend.model.results.comment.BlogNotExisting
 import com.sorsix.blogitbackend.repository.BlogRepository
@@ -17,10 +18,19 @@ import javax.transaction.Transactional
 class CommentServiceImpl(
     val commentRepository: CommentRepository,
     val userRepository: UserRepository,
-    val blogRepository: BlogRepository,
+    val blogRepository: BlogRepository
 ) : CommentService {
 
-    override fun findAll(blog_id: Long): List<Comment> = commentRepository.findAll()
+
+
+    override fun findAll(blog_id: Long): List<CommentDto> {
+        val commentIds = this.commentRepository.getCommentsForBlog(blog_id)
+        val comments = this.commentRepository.findAllById(commentIds)
+        return comments.map { comment ->
+            val username = userRepository.findByIdOrNull(comment.user_id)!!.username
+            toDto(comment, username)
+        }
+    }
 
     @Transactional
     override fun like(comment_id: Long): CommentLikedResult {
@@ -32,15 +42,19 @@ class CommentServiceImpl(
         return comment?.let {
             if (commentRepository.isLikedByUser(comment_id, user!!.id)) {
                 val changedRecords = commentRepository.unlike(comment_id)
-                return if (changedRecords > 0) CommentUnliked("Comment successfully unliked.")
+                return if (changedRecords > 0) {
+                    commentRepository.unmarkCommentAsLikedByUser(comment_id = comment_id, user_id = user.id)
+                    CommentUnliked("Comment successfully unliked.")
+                }
                 else CommentLikeError("Error liking comment.")
             }
 
             val isSuccessful = commentRepository.like(comment.id)
 
             if (isSuccessful == 1) {
+                val usernameOfCommenter = userRepository.findByIdOrNull(comment.id)!!.username
                 commentRepository.markCommentAsLikedByUser(comment_id, user.id)
-                return CommentLiked(comment)
+                return CommentLiked(toDto(comment, usernameOfCommenter))
             } else {
                 CommentLikeError("Error upvoting comment")
             }
@@ -64,7 +78,7 @@ class CommentServiceImpl(
         )
 
         return try {
-            CommentCreated(commentRepository.save(c))
+            CommentCreated(toDto(commentRepository.save(c), username))
         } catch (ex: Exception) {
             CommentCreateError("Error creating comment")
         }
@@ -94,7 +108,7 @@ class CommentServiceImpl(
         )
 
         return try {
-            CommentCreated(commentRepository.save(c))
+            CommentCreated(toDto(comment, username))
         } catch (ex: Exception) {
             CommentCreateError("Error updating comment")
         }
@@ -114,6 +128,31 @@ class CommentServiceImpl(
 
         commentRepository.findByIdOrNull(comment.id)?.let {
             return CommentDeleteError("Comment delete error.")
-        } ?: return CommentDeleted(comment)
+        } ?: return CommentDeleted(toDto(comment, username))
+    }
+
+    fun toDto(comment: Comment, username: String): CommentDto {
+        val usernameOfLoggedInUser: String = SecurityContextHolder.getContext().authentication?.principal as String
+        val loggedInUser = this.userRepository.findByUsername(usernameOfLoggedInUser)
+        if (loggedInUser != null) {
+            val isLiked = this.commentRepository.isLikedByUser(comment_id = comment.id, user_id = loggedInUser.id)
+            return CommentDto(
+                id = comment.id,
+                content = comment.content,
+                dateCreated = comment.dateCreated,
+                numberOfLikes = comment.numberOfLikes,
+                username = username,
+                blog_id = comment.blog_id,
+                isLikedByCurrentlyLoggedInUser = isLiked
+            )
+        }
+        return CommentDto(
+            id = comment.id,
+            content = comment.content,
+            dateCreated = comment.dateCreated,
+            numberOfLikes = comment.numberOfLikes,
+            username = username,
+            blog_id = comment.blog_id
+        )
     }
 }

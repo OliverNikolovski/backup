@@ -7,7 +7,6 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sorsix.blogitbackend.config.SECRET
 import com.sorsix.blogitbackend.config.TOKEN_PREFIX
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -35,17 +34,22 @@ class CustomAuthorizationFilter : OncePerRequestFilter() {
             if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 try {
                     val token: String = authorizationHeader.substring(TOKEN_PREFIX.length)
-                    val algorithm: Algorithm = Algorithm.HMAC256(SECRET)
-                    val verifier: JWTVerifier = JWT.require(algorithm).build()
-                    val decodedJWT: DecodedJWT = verifier.verify(token)
-                    val username: String = decodedJWT.subject
-                    val roles: Array<String>? = decodedJWT.claims["roles"]?.asArray(String::class.java)
-                    val authorities: MutableCollection<SimpleGrantedAuthority> = ArrayList()
-                    Arrays.stream(roles).forEach { authorities.add(SimpleGrantedAuthority(it)) }
-                    val authenticationToken: UsernamePasswordAuthenticationToken =
-                        UsernamePasswordAuthenticationToken(username, null, authorities)
-                    SecurityContextHolder.getContext().authentication = authenticationToken
-                    filterChain.doFilter(request, response)
+                    if (token == "null" && request.method == "GET") {
+                        filterChain.doFilter(request, response)
+                    }
+                    else {
+                        val algorithm: Algorithm = Algorithm.HMAC256(SECRET)
+                        val verifier: JWTVerifier = JWT.require(algorithm).build()
+                        val decodedJWT: DecodedJWT = verifier.verify(token)
+                        val username: String = decodedJWT.subject
+                        val roles: Array<String>? = decodedJWT.claims["roles"]?.asArray(String::class.java)
+                        val authorities: MutableCollection<SimpleGrantedAuthority> = ArrayList()
+                        Arrays.stream(roles).forEach { authorities.add(SimpleGrantedAuthority(it)) }
+                        val authenticationToken =
+                            UsernamePasswordAuthenticationToken(username, null, authorities)
+                        SecurityContextHolder.getContext().authentication = authenticationToken
+                        filterChain.doFilter(request, response)
+                    }
                 } catch (ex: Exception) {
                     response.status = HttpStatus.FORBIDDEN.value()
                     response.contentType = APPLICATION_JSON_VALUE

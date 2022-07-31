@@ -27,4 +27,7 @@ interface CommentRepository : JpaRepository<Comment, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from likes_comment where comment_id = ?1 and user_id = ?2", nativeQuery = true)
     fun unmarkCommentAsLikedByUser(comment_id: Long, user_id: Long)
+
+    @Query("select c.id from Comment c where c.blog_id = :blogId")
+    fun getCommentsForBlog(blogId: Long): List<Long>
 }

@@ -33,7 +33,7 @@ class WebSecurityConfig(
             .and()
             .authorizeRequests()
             .antMatchers(POST, "/api/login", "/api/users/register").permitAll()
-            .antMatchers(GET, "/api/blogs/**", "/api/bookmarks/**", "/api/users/**").permitAll()
+            .antMatchers(GET, "/api/blogs/**", "/api/bookmarks/**", "/api/users/**", "/api/comments/**").permitAll()
             .anyRequest()
             .authenticated()
             .and()

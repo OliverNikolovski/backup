@@ -1,19 +1,20 @@
 package com.sorsix.blogitbackend.model.dto
 
-import com.sorsix.blogitbackend.model.enumeration.Tag
 import java.time.ZonedDateTime
+import javax.persistence.Column
 
-data class BlogDto(
+data class CommentDto(
     val id: Long,
-    val title: String,
+
     val content: String,
+
     val dateCreated: ZonedDateTime,
-    val estimatedReadTime: Int,
+
     val numberOfLikes: Int,
-    val numberOfComments: Int,
+
     val username: String,
-    val tags: List<Tag>,
-    val picture: ByteArray? = null,
-    val pictureFormat: String? = null,
+
+    val blog_id: Long,
+
     val isLikedByCurrentlyLoggedInUser: Boolean? = null
 )

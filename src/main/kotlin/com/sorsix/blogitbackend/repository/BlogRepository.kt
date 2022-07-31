@@ -75,4 +75,7 @@ interface BlogRepository: JpaRepository<Blog, Long> {
         insert into tags(blog_id, tag) values (?1, ?2)
         """, nativeQuery = true)
     fun saveTagForBlog(blogId: Long, tag: String)
+
+    @Query(value = "select count(*) from comment where blog_id = ?1", nativeQuery = true)
+    fun getNumberOfCommentsForBlog(blogId: Long): Int
 }
